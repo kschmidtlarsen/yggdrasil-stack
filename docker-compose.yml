@@ -7,11 +7,11 @@
 # worlds, serving as the center of the universe in Norse cosmology.
 #
 # This stack unifies all platform services under one deployment:
-# - Heimdall (Caddy) - Gateway/Reverse Proxy
 # - Urd (PostgreSQL) - Database
 # - Mimir - AI Agent Orchestration
 # - Application Services (pre-built images from ghcr.io)
 #
+# Direct routing: Each app exposes its own port for Cloudflare Tunnel.
 # Managed via Portainer on Unraid (192.168.0.20)
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -26,10 +26,6 @@ volumes:
     name: yggdrasil-urd-data
   pgadmin-data:
     name: yggdrasil-pgadmin-data
-  caddy-data:
-    name: yggdrasil-caddy-data
-  caddy-config:
-    name: yggdrasil-caddy-config
 
   # File uploads
   sorring3d-uploads:
@@ -38,25 +34,6 @@ volumes:
     name: yggdrasil-sorring-udlejning-uploads
 
 services:
-  # ─────────────────────────────────────────────────────────────────────────────
-  # HEIMDALL - Caddy Reverse Proxy (Guardian of Bifrost)
-  # ─────────────────────────────────────────────────────────────────────────────
-  heimdall:
-    image: caddy:2-alpine
-    container_name: yggdrasil-heimdall
-    restart: unless-stopped
-    ports:
-      - "9080:80"
-      - "9443:443"
-    volumes:
-      - /mnt/user/websites/yggdrasil/caddy:/etc/caddy:ro
-      - caddy-data:/data
-      - caddy-config:/config
-    networks:
-      - bifrost
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
   # ─────────────────────────────────────────────────────────────────────────────
   # URD - PostgreSQL 17 Database (Well of Fate)
   # ─────────────────────────────────────────────────────────────────────────────
@@ -121,6 +98,7 @@ services:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # MIMIR - AI Agent Orchestration (The Wise One)
+  # Port: 793
   # ─────────────────────────────────────────────────────────────────────────────
   mimir:
     image: ghcr.io/kschmidtlarsen/mimir:latest
@@ -156,13 +134,17 @@ services:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # APPLICATION SERVICES (pre-built images from ghcr.io)
+  # Each app has its own port for direct Cloudflare Tunnel routing
   # ─────────────────────────────────────────────────────────────────────────────
 
   # Kanban Board - Project Management
+  # Port: 3001
   kanban:
     image: ghcr.io/kschmidtlarsen/kanban:latest
     container_name: yggdrasil-kanban
     restart: unless-stopped
+    ports:
+      - "3001:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -182,10 +164,13 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Calify - Calendar Feed Transformation
+  # Port: 3002
   calify:
     image: ghcr.io/kschmidtlarsen/calify:latest
     container_name: yggdrasil-calify
     restart: unless-stopped
+    ports:
+      - "3002:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -209,10 +194,13 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Grablist - Smart Shopping List PWA
+  # Port: 3003
   grablist:
     image: ghcr.io/kschmidtlarsen/grablist:latest
     container_name: yggdrasil-grablist
     restart: unless-stopped
+    ports:
+      - "3003:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -234,10 +222,13 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Night Tales - AI Bedtime Story Generator
+  # Port: 3004
   nighttales:
     image: ghcr.io/kschmidtlarsen/nighttales:latest
     container_name: yggdrasil-nighttales
     restart: unless-stopped
+    ports:
+      - "3004:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -260,10 +251,13 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Playwright - E2E Test Dashboard
+  # Port: 3005
   playwright:
     image: ghcr.io/kschmidtlarsen/playwright:latest
     container_name: yggdrasil-playwright
     restart: unless-stopped
+    ports:
+      - "3005:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -283,10 +277,13 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Sorring 3D - 3D Print Service
+  # Port: 3006
   sorring3d:
     image: ghcr.io/kschmidtlarsen/sorring3d:latest
     container_name: yggdrasil-sorring3d
     restart: unless-stopped
+    ports:
+      - "3006:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -311,10 +308,13 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Sorring Udlejning - Tool Rental Platform
+  # Port: 3007
   sorring-udlejning:
     image: ghcr.io/kschmidtlarsen/sorring-udlejning:latest
     container_name: yggdrasil-sorring-udlejning
     restart: unless-stopped
+    ports:
+      - "3007:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -338,10 +338,13 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # WODForge - CrossFit Workout Generator
+  # Port: 3008
   wodforge:
     image: ghcr.io/kschmidtlarsen/wodforge:latest
     container_name: yggdrasil-wodforge
     restart: unless-stopped
+    ports:
+      - "3008:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
