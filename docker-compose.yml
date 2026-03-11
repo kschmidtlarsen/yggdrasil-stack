@@ -51,6 +51,7 @@ services:
     volumes:
       - urd-data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d:ro
+      - /mnt/user/websites/urd/imports:/imports:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-urd} -d postgres"]
       interval: 10s
