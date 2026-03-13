@@ -134,6 +134,35 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # CHROME - Headless Browser for DevTools MCP
+  # Port: 6107 (CDP exposed for chrome-devtools-mcp)
+  # ─────────────────────────────────────────────────────────────────────────────
+  chrome:
+    image: zenika/alpine-chrome:latest
+    container_name: yggdrasil-chrome
+    restart: unless-stopped
+    ports:
+      - "6107:9222"
+    command:
+      - "--no-sandbox"
+      - "--remote-debugging-address=0.0.0.0"
+      - "--remote-debugging-port=9222"
+      - "--disable-gpu"
+      - "--disable-dev-shm-usage"
+      - "--headless"
+      - "about:blank"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9222/json/version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bifrost
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # APPLICATION SERVICES (pre-built images from ghcr.io)
   # Each app has its own port for direct Cloudflare Tunnel routing
   # ─────────────────────────────────────────────────────────────────────────────
