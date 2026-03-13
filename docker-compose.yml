@@ -107,8 +107,6 @@ services:
     restart: unless-stopped
     ports:
       - "6103:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -216,11 +214,15 @@ services:
     restart: unless-stopped
     ports:
       - "6101:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
+      KANBAN_DATABASE_URL: ${KANBAN_DATABASE_URL}
+      KANBAN_JWT_SECRET: ${KANBAN_JWT_SECRET}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      SONAR_TOKEN: ${SONAR_TOKEN}
+      WEBSOCKET_KEY: ${WEBSOCKET_KEY}
+      SONARQUBE_ORG: ${SONARQUBE_ORG:-kschmidtlarsen}
     depends_on:
       urd:
         condition: service_healthy
@@ -243,8 +245,6 @@ services:
     restart: unless-stopped
     ports:
       - "6201:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -275,8 +275,6 @@ services:
     restart: unless-stopped
     ports:
       - "6205:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -305,8 +303,6 @@ services:
     restart: unless-stopped
     ports:
       - "6206:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -336,8 +332,6 @@ services:
     restart: unless-stopped
     ports:
       - "6102:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -364,8 +358,6 @@ services:
     restart: unless-stopped
     ports:
       - "6203:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -397,8 +389,6 @@ services:
     restart: unless-stopped
     ports:
       - "6204:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -429,8 +419,6 @@ services:
     restart: unless-stopped
     ports:
       - "6202:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -459,8 +447,6 @@ services:
     restart: unless-stopped
     ports:
       - "6106:3000"
-    env_file:
-      - /mnt/user/appdata/claude/.env
     environment:
       NODE_ENV: production
       PORT: 3000
