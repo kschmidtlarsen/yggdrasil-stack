@@ -163,6 +163,45 @@ services:
       - "com.centurylinklabs.watchtower.enable=false"
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # EIR - Backup & Recovery Guardian (Goddess of Healing)
+  # Port: 6108
+  # ─────────────────────────────────────────────────────────────────────────────
+  eir:
+    image: ghcr.io/kschmidtlarsen/eir:latest
+    container_name: yggdrasil-eir
+    restart: unless-stopped
+    ports:
+      - "6108:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-urd}:${POSTGRES_PASSWORD}@urd:5432/eir_db?sslmode=disable
+      URD_HOST: urd
+      URD_PORT: 5432
+      URD_USER: ${POSTGRES_USER:-urd}
+      URD_PASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_SCHEDULE: "0 3,15 * * *"
+    volumes:
+      - /mnt/user/backup/websites:/backups
+      - sorring3d-uploads:/volumes/sorring3d:ro
+      - sorring-udlejning-uploads:/volumes/sorring-udlejning:ro
+      - /mnt/user/appdata/claude/.env:/config/.env:ro
+      - /mnt/user/websites/yggdrasil/docker-compose.yml:/config/docker-compose.yml:ro
+    depends_on:
+      urd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - bifrost
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # APPLICATION SERVICES (pre-built images from ghcr.io)
   # Each app has its own port for direct Cloudflare Tunnel routing
   # ─────────────────────────────────────────────────────────────────────────────
@@ -179,6 +218,9 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-urd}:${POSTGRES_PASSWORD}@urd:5432/kanban_db?sslmode=disable
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      SONARCLOUD_TOKEN: ${SONARCLOUD_TOKEN}
+      WEBSOCKET_KEY: ${WEBSOCKET_KEY}
     depends_on:
       urd:
         condition: service_healthy
