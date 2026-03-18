@@ -133,6 +133,10 @@ postgresql://urd:{password}@192.168.0.20:5439/{database}?sslmode=disable
 
 **Web UI:** http://192.168.0.20:9000
 **Purpose:** Manual container management, stack configuration, image rollback
+**Stack ID:** 51 | **Environment ID:** 3
+
+> **IMPORTANT:** When using Portainer MCP tools, always use `environment_id: 3`.
+> IDs 1 and 2 do not exist. The `docker` CLI is not available — use Portainer MCP tools instead.
 
 **Common Operations:**
 - View container logs
