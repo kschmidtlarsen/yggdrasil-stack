@@ -180,6 +180,8 @@ const SERVICES = [
     monitors: [
       { suffix: 'Backup', type: 'push', pushToken: 'ygg-backup', interval: 43200, maxretries: 0 },
       { suffix: 'Database Snapshot', type: 'push', pushToken: 'ygg-db-snapshot', interval: 86400, maxretries: 0 },
+      { suffix: 'Database Heartbeat', type: 'push', pushToken: 'ygg-db-heartbeat', interval: 120, maxretries: 2 },
+      { suffix: 'Heartbeat Prune', type: 'push', pushToken: 'ygg-heartbeat-prune', interval: 86400, maxretries: 0 },
       { suffix: 'Rollback Monitor', type: 'push', pushToken: 'ygg-rollback-monitor', interval: 300, maxretries: 2 },
     ],
   },
