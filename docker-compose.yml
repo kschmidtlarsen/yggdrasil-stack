@@ -129,7 +129,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      CLAUDE_CONFIG_DIR: /config/home/.claude
+      # CLAUDE_CONFIG_DIR is set by docker-entrypoint.sh (writable overlay at /home/claude/.claude-runtime)
     volumes:
       - /mnt/user/appdata/claude/.env:/app/.env:ro
       - /mnt/user/websites:/data/websites:rw
