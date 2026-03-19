@@ -18,7 +18,7 @@
 # All secrets live in /mnt/user/appdata/claude/.env (single source of truth).
 # Each app container mounts this file as /app/.env:ro and loads it via dotenv.
 # No secrets in this compose file or in Portainer stack env vars.
-# Only infrastructure services (urd, pgadmin, umami, watchtower) use
+# Only infrastructure services (urd, umami, watchtower) use
 # Portainer stack env vars for compose-level interpolation.
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -31,8 +31,6 @@ volumes:
   # Infrastructure
   urd-data:
     name: yggdrasil-urd-data
-  pgadmin-data:
-    name: yggdrasil-pgadmin-data
   ollama-models:
     name: yggdrasil-ollama-models
 
@@ -84,33 +82,6 @@ services:
         limits:
           cpus: '2.0'
           memory: 2G
-    networks:
-      - bifrost
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # PGADMIN - Database Administration
-  # ─────────────────────────────────────────────────────────────────────────────
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: yggdrasil-pgadmin
-    restart: unless-stopped
-    ports:
-      - "6104:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@exe.pm}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    depends_on:
-      - urd
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
     networks:
       - bifrost
     labels:

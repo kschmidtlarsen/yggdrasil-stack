@@ -73,7 +73,6 @@ Yggdrasil is the unified Docker stack that hosts all platform services on the Un
 | Kanban | yggdrasil-kanban | 6101 | kanban.exe.pm |
 | Playwright | yggdrasil-playwright | 6102 | playwright.exe.pm |
 | Mimir | yggdrasil-mimir | 6103 | mimir.exe.pm |
-| pgAdmin | yggdrasil-pgadmin | 6104 | pgadmin.exe.pm |
 | Umami | yggdrasil-umami | 6105 | umami.exe.pm |
 | CoS | yggdrasil-cos | 6106 | cos.exe.pm |
 | Chrome | yggdrasil-chrome | 6107 | — (CDP only) |
@@ -180,7 +179,7 @@ CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}
 ```
 
 Internal tools (61xx ports) protected:
-- kanban.exe.pm, playwright.exe.pm, mimir.exe.pm, pgadmin.exe.pm, umami.exe.pm, cos.exe.pm
+- kanban.exe.pm, playwright.exe.pm, mimir.exe.pm, umami.exe.pm, cos.exe.pm
 
 Public sites (62xx ports, no Access):
 - calify.it, wodforge.exe.pm, sorring3d.dk, sorringudlejning.dk, grablist.org, nighttales.cloud
@@ -388,7 +387,6 @@ Eir backs up all 14 databases, 2 upload volumes, .env, docker-compose.yml, and R
 ## Volumes
 
 - `yggdrasil-urd-data` - PostgreSQL data
-- `yggdrasil-pgadmin-data` - pgAdmin config
 - `yggdrasil-sorring3d-uploads` - 3D model uploads
 - `yggdrasil-sorring-udlejning-uploads` - Tool images
 

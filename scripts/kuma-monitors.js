@@ -71,14 +71,6 @@ const SERVICES = [
     ],
   },
   {
-    name: 'pgAdmin',
-    slug: 'pgadmin',
-    type: 'internal',
-    monitors: [
-      { suffix: 'Internal', type: 'http', url: `http://${HOST}:6104`, interval: 120 },
-    ],
-  },
-  {
     name: 'Umami Analytics',
     slug: 'umami',
     type: 'internal',
