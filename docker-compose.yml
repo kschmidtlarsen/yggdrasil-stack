@@ -125,12 +125,12 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # YGGDRASIL FRONTEND - Infrastructure Operations Platform
+  # YGGDRASIL - Infrastructure Operations Platform
   # Port: 6100
   # ─────────────────────────────────────────────────────────────────────────────
-  yggdrasil-frontend:
-    image: ghcr.io/kschmidtlarsen/yggdrasil-frontend:latest
-    container_name: yggdrasil-yggdrasil-frontend
+  yggdrasil:
+    image: ghcr.io/kschmidtlarsen/yggdrasil:latest
+    container_name: yggdrasil-dashboard
     restart: unless-stopped
     ports:
       - "6100:3000"
