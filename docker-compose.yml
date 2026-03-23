@@ -34,11 +34,8 @@ volumes:
   ollama-models:
     name: yggdrasil-ollama-models
 
-  # File uploads
-  sorring3d-uploads:
-    name: yggdrasil-sorring3d-uploads
-  sorring-udlejning-uploads:
-    name: yggdrasil-sorring-udlejning-uploads
+  # File uploads: bind-mounted from /mnt/user/websites/files/{project}
+  # No named volumes — files live on the Unraid share for easy backup
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -216,8 +213,8 @@ services:
       - /mnt/user/appdata/claude/.env:/app/.env:ro
       - /mnt/user/appdata/claude/.env:/config/.env:ro
       - /mnt/user/backup/websites:/backups
-      - sorring3d-uploads:/volumes/sorring3d:ro
-      - sorring-udlejning-uploads:/volumes/sorring-udlejning:ro
+      - /mnt/user/websites/files/sorring3d:/volumes/sorring3d:ro
+      - /mnt/user/websites/files/sorring-udlejning:/volumes/sorring-udlejning:ro
       - /mnt/user/websites/yggdrasil-stack/docker-compose.yml:/config/docker-compose.yml:ro
     depends_on:
       urd:
@@ -472,7 +469,7 @@ services:
       PORT: 3000
     volumes:
       - /mnt/user/appdata/claude/.env:/app/.env:ro
-      - sorring3d-uploads:/app/uploads
+      - /mnt/user/websites/files/sorring3d:/app/uploads
     depends_on:
       urd:
         condition: service_healthy
@@ -505,7 +502,7 @@ services:
       PORT: 3000
     volumes:
       - /mnt/user/appdata/claude/.env:/app/.env:ro
-      - sorring-udlejning-uploads:/app/uploads
+      - /mnt/user/websites/files/sorring-udlejning:/app/uploads
     depends_on:
       urd:
         condition: service_healthy

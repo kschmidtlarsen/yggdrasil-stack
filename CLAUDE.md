@@ -386,9 +386,14 @@ Eir backs up all 14 databases, 2 upload volumes, .env, docker-compose.yml, and R
 
 ## Volumes
 
+**Named volumes (Docker-managed):**
 - `yggdrasil-urd-data` - PostgreSQL data
-- `yggdrasil-sorring3d-uploads` - 3D model uploads
-- `yggdrasil-sorring-udlejning-uploads` - Tool images
+- `yggdrasil-ollama-models` - Ollama AI models
+
+**File uploads (bind-mounted from Unraid share):**
+- `/mnt/user/websites/files/sorring3d` → `/app/uploads` (sorring3d) + `/volumes/sorring3d` (eir, read-only)
+- `/mnt/user/websites/files/sorring-udlejning` → `/app/uploads` (sorring-udlejning) + `/volumes/sorring-udlejning` (eir, read-only)
+- `/mnt/user/websites/files/{project}` — convention for all future project file storage
 
 ## Troubleshooting
 
