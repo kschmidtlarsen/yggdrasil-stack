@@ -218,7 +218,7 @@ services:
       - /mnt/user/backup/websites:/backups
       - sorring3d-uploads:/volumes/sorring3d:ro
       - sorring-udlejning-uploads:/volumes/sorring-udlejning:ro
-      - /mnt/user/websites/yggdrasil/docker-compose.yml:/config/docker-compose.yml:ro
+      - /mnt/user/websites/yggdrasil-stack/docker-compose.yml:/config/docker-compose.yml:ro
     depends_on:
       urd:
         condition: service_healthy
