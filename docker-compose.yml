@@ -101,7 +101,8 @@ services:
     volumes:
       - /mnt/user/appdata/claude/.env:/app/.env:ro
       - /mnt/user/websites:/data/websites:rw
-      - /mnt/user/appdata/claude:/config/home/.claude:ro
+      # rw: Mimir is the token keeper — needs to chmod 644 and write refreshed tokens
+      - /mnt/user/appdata/claude:/config/home/.claude:rw
     depends_on:
       urd:
         condition: service_healthy
@@ -630,8 +631,8 @@ services:
       WATCHTOWER_LABEL_ENABLE: "true"
       # Remove old images after updating (prevents orphaned images)
       WATCHTOWER_CLEANUP: "true"
-      # Check for updates every 5 minutes (300 seconds)
-      WATCHTOWER_POLL_INTERVAL: 300
+      # Check for updates every 1 minute (60 seconds)
+      WATCHTOWER_POLL_INTERVAL: 60
       # Include stopped containers
       WATCHTOWER_INCLUDE_STOPPED: "true"
       # Revive stopped containers after update
@@ -646,7 +647,7 @@ services:
     volumes:
       # Docker socket for container management
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 300 --cleanup --label-enable
+    # Config via environment vars above (no command: override)
     deploy:
       resources:
         limits:
