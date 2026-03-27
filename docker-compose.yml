@@ -399,7 +399,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # Schmidt Larsen - Professional Personal Website
-  # Port: 6207
+  # Port: 6207 (geoip-lite loads ~500MB MaxMind DB at startup)
   schmidt-larsen:
     image: ghcr.io/kschmidtlarsen/schmidt-larsen:latest
     container_name: yggdrasil-schmidt-larsen
@@ -424,7 +424,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 1G
     networks:
       - bifrost
     labels:
