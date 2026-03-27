@@ -641,13 +641,11 @@ services:
       WATCHTOWER_ROLLING_RESTART: "true"
       # Log level
       WATCHTOWER_DEBUG: "false"
-      # ghcr.io authentication (GitHub Container Registry)
-      REPO_USER: ${GITHUB_USER:-kschmidtlarsen}
-      REPO_PASS: ${GITHUB_TOKEN}
     volumes:
       # Docker socket for container management
       - /var/run/docker.sock:/var/run/docker.sock
-    # Config via environment vars above (no command: override)
+      # ghcr.io registry credentials (generated outside git, see .gitignore)
+      - /mnt/user/websites/yggdrasil-stack/watchtower-config.json:/config.json:ro
     deploy:
       resources:
         limits:

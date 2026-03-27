@@ -13,6 +13,9 @@ backups/
 # Dependencies
 node_modules/
 
+# Docker registry auth (contains tokens)
+watchtower-config.json
+
 # OS files
 .DS_Store
 Thumbs.db
