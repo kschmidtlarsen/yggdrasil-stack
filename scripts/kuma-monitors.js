@@ -40,8 +40,34 @@ const SERVICES = [
       { suffix: 'External', type: 'http', url: 'https://backup.exe.pm', interval: 300 },
     ],
   },
+  {
+    name: 'Chrome DevTools',
+    slug: 'chrome',
+    type: 'infrastructure',
+    monitors: [
+      { suffix: 'CDP', type: 'http', url: `http://${HOST}:6107/json/version`, interval: 120 },
+    ],
+  },
+  {
+    name: 'Ollama',
+    slug: 'ollama',
+    type: 'infrastructure',
+    monitors: [
+      { suffix: 'API', type: 'http', url: `http://${HOST}:6109/api/tags`, interval: 120 },
+    ],
+  },
 
   // ── Internal Tools (61xx) ──
+  {
+    name: 'Yggdrasil Dashboard',
+    slug: 'yggdrasil',
+    type: 'internal',
+    monitors: [
+      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6100/api/health`, keyword: '"status":"ok"', interval: 60 },
+      { suffix: 'DB Connected', type: 'keyword', url: `http://${HOST}:6100/api/health`, keyword: '"database":"connected"', interval: 120 },
+      { suffix: 'External', type: 'http', url: 'https://yggdrasil.exe.pm', interval: 300 },
+    ],
+  },
   {
     name: 'Kanban Board',
     slug: 'kanban',
@@ -63,7 +89,7 @@ const SERVICES = [
   {
     name: 'Mimir AI',
     slug: 'mimir',
-    type: 'internal',
+    type: 'infrastructure',
     monitors: [
       { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6103/api/health`, keyword: '"status":"ok"', interval: 60 },
       { suffix: 'DB Connected', type: 'keyword', url: `http://${HOST}:6103/api/health`, keyword: '"database":"connected"', interval: 120 },
@@ -71,29 +97,12 @@ const SERVICES = [
     ],
   },
   {
-    name: 'Umami Analytics',
-    slug: 'umami',
-    type: 'internal',
-    monitors: [
-      { suffix: 'Internal Health', type: 'http', url: `http://${HOST}:6105/api/heartbeat`, interval: 60 },
-      { suffix: 'External', type: 'http', url: 'https://umami.exe.pm', interval: 300 },
-    ],
-  },
-  {
     name: 'Chief of Staff',
     slug: 'cos',
-    type: 'internal',
+    type: 'external',
     monitors: [
       { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6106/api/health`, keyword: '"status":"ok"', interval: 60 },
       { suffix: 'External', type: 'http', url: 'https://cos.exe.pm', interval: 300 },
-    ],
-  },
-  {
-    name: 'Chrome DevTools',
-    slug: 'chrome',
-    type: 'internal',
-    monitors: [
-      { suffix: 'CDP', type: 'http', url: `http://${HOST}:6107/json/version`, interval: 120 },
     ],
   },
 

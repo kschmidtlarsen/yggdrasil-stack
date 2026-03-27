@@ -73,7 +73,6 @@ Yggdrasil is the unified Docker stack that hosts all platform services on the Un
 | Kanban | yggdrasil-kanban | 6101 | kanban.exe.pm |
 | Playwright | yggdrasil-playwright | 6102 | playwright.exe.pm |
 | Mimir | yggdrasil-mimir | 6103 | mimir.exe.pm |
-| Umami | yggdrasil-umami | 6105 | umami.exe.pm |
 | CoS | yggdrasil-cos | 6106 | cos.exe.pm |
 | Chrome | yggdrasil-chrome | 6107 | — (CDP only) |
 
@@ -116,7 +115,6 @@ postgresql://urd:{password}@192.168.0.20:5439/{database}?sslmode=disable
 |---------|----------|--------|
 | kanban | kanban_db | public |
 | playwright | playwright_db | public |
-| umami | umami_db | public |
 | cos | cos_db | public |
 | mimir | mimir_db | public |
 | calify | calify_db | public |
@@ -179,7 +177,7 @@ CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}
 ```
 
 Internal tools (61xx ports) protected:
-- kanban.exe.pm, playwright.exe.pm, mimir.exe.pm, umami.exe.pm, cos.exe.pm
+- kanban.exe.pm, playwright.exe.pm, mimir.exe.pm, cos.exe.pm
 
 Public sites (62xx ports, no Access):
 - calify.it, wodforge.exe.pm, sorring3d.dk, sorringudlejning.dk, grablist.org, nighttales.cloud
@@ -382,7 +380,7 @@ node scripts/kuma-sync.js nuke && sleep 15 && node scripts/kuma-sync.js sync
 Full rebuild guide: `/websites/eir/REBUILD.md`
 Also copied to backup root: `/mnt/user/backup/websites/REBUILD.md`
 
-Eir backs up all 14 databases, 2 upload volumes, .env, docker-compose.yml, and REBUILD.md twice daily.
+Eir backs up all 13 databases, 2 upload volumes, .env, docker-compose.yml, and REBUILD.md twice daily.
 
 ## Volumes
 

@@ -18,7 +18,7 @@
 # All secrets live in /mnt/user/appdata/claude/.env (single source of truth).
 # Each app container mounts this file as /app/.env:ro and loads it via dotenv.
 # No secrets in this compose file or in Portainer stack env vars.
-# Only infrastructure services (urd, umami, watchtower) use
+# Only infrastructure services (urd, watchtower) use
 # Portainer stack env vars for compose-level interpolation.
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -582,38 +582,6 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
-    networks:
-      - bifrost
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-
-  # Umami - Web Analytics (Google Analytics alternative)
-  # Port: 6105
-  umami:
-    image: ghcr.io/umami-software/umami:postgresql-latest
-    container_name: yggdrasil-umami
-    restart: unless-stopped
-    ports:
-      - "6105:3000"
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-urd}:${POSTGRES_PASSWORD}@urd:5432/umami_db
-      DATABASE_TYPE: postgresql
-      APP_SECRET: ${UMAMI_APP_SECRET:-umami-secret-change-me}
-      DISABLE_UPDATES: "true"
-    depends_on:
-      urd:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/api/heartbeat"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
     networks:
       - bifrost
     labels:
