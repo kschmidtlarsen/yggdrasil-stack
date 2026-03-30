@@ -6,8 +6,8 @@
  *
  * Health endpoint response formats vary across services:
  *   - Most return {"status":"ok",...}
- *   - Grablist returns {"status":"healthy",...,"database":{"connected":true,...}}
- *   - Playwright returns {"status":"healthy",...}
+ *   - Grablist returns {"status":"ok",...,"database":{"connected":true,...}}
+ *   - Playwright returns {"status":"ok",...}
  *   - Eir returns {"status":"ok",...,"database":"connected",...}
  *   - Some have no database field at all
  *
@@ -37,7 +37,6 @@ const SERVICES = [
     monitors: [
       { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6108/api/health`, keyword: '"status":"ok"', interval: 60 },
       { suffix: 'DB Connected', type: 'keyword', url: `http://${HOST}:6108/api/health`, keyword: '"database":"connected"', interval: 120 },
-      { suffix: 'External', type: 'http', url: 'https://backup.exe.pm', interval: 300 },
     ],
   },
   {
@@ -82,7 +81,7 @@ const SERVICES = [
     slug: 'playwright',
     type: 'internal',
     monitors: [
-      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6102/api/health`, keyword: '"status":"healthy"', interval: 60 },
+      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6102/api/health`, keyword: '"status":"ok"', interval: 60 },
       { suffix: 'External', type: 'http', url: 'https://playwright.exe.pm', interval: 300 },
     ],
   },
@@ -149,7 +148,7 @@ const SERVICES = [
     slug: 'grablist',
     type: 'external',
     monitors: [
-      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6205/api/health`, keyword: '"status":"healthy"', interval: 60 },
+      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6205/api/health`, keyword: '"status":"ok"', interval: 60 },
       { suffix: 'DB Connected', type: 'keyword', url: `http://${HOST}:6205/api/health`, keyword: '"connected":true', interval: 120 },
       { suffix: 'External', type: 'http', url: 'https://grablist.org', interval: 300 },
     ],
