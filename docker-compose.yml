@@ -194,6 +194,32 @@ services:
       - "com.centurylinklabs.watchtower.enable=false"
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # BROWSER - Firefox + noVNC for OAuth flows
+  # Port: 6111 (noVNC web UI)
+  # Used to complete browser-based OAuth for remote MCP servers
+  # ─────────────────────────────────────────────────────────────────────────────
+  browser:
+    image: jlesage/firefox:latest
+    container_name: yggdrasil-browser
+    restart: unless-stopped
+    ports:
+      - "6111:5800"
+    environment:
+      DISPLAY_WIDTH: 1280
+      DISPLAY_HEIGHT: 900
+      KEEP_APP_RUNNING: 1
+      FF_PREF_BROWSER_TABS_REMOTE_AUTOSTART: "\"true\""
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    networks:
+      - bifrost
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # EIR - Backup & Recovery Guardian (Goddess of Healing)
   # Port: 6108
   # ─────────────────────────────────────────────────────────────────────────────
