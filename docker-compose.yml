@@ -242,6 +242,7 @@ services:
       - /mnt/user/backup/websites:/backups
       - /mnt/user/websites/files/sorring3d:/volumes/sorring3d:ro
       - /mnt/user/websites/files/sorring-udlejning:/volumes/sorring-udlejning:ro
+      - /mnt/user/websites/files/stuffbase:/volumes/stuffbase:ro
       - /mnt/user/websites/yggdrasil-stack/docker-compose.yml:/config/docker-compose.yml:ro
     depends_on:
       urd:
@@ -483,6 +484,39 @@ services:
         limits:
           cpus: '0.5'
           memory: 512M
+    networks:
+      - bifrost
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Stuffbase - Asset Library with Maintenance Tracking
+  # Port: 6104
+  stuffbase:
+    image: ghcr.io/kschmidtlarsen/stuffbase:latest
+    container_name: yggdrasil-stuffbase
+    restart: unless-stopped
+    ports:
+      - "6104:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    volumes:
+      - /mnt/user/appdata/claude/.env:/app/.env:ro
+      - /mnt/user/websites/files/stuffbase:/app/uploads
+    depends_on:
+      urd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     networks:
       - bifrost
     labels:
