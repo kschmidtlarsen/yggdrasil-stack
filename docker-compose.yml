@@ -81,6 +81,10 @@ services:
       - "work_mem=16MB"
       - "-c"
       - "maintenance_work_mem=128MB"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.track=all"
     deploy:
       resources:
         limits:
@@ -255,6 +259,46 @@ services:
         limits:
           cpus: '2.0'
           memory: 4G
+    networks:
+      - bifrost
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # ZAP - OWASP ZAP Security Scanner (DAST)
+  # Port: 6112 (ZAP API for programmatic scans)
+  # Used by /test skill Phase 2.5 for dynamic security scanning
+  # ─────────────────────────────────────────────────────────────────────────────
+  zap:
+    image: zaproxy/zap-stable:latest
+    container_name: yggdrasil-zap
+    restart: unless-stopped
+    ports:
+      - "6112:8080"
+    command:
+      - "zap.sh"
+      - "-daemon"
+      - "-host"
+      - "0.0.0.0"
+      - "-port"
+      - "8080"
+      - "-config"
+      - "api.addrs.addr.name=.*"
+      - "-config"
+      - "api.addrs.addr.regex=true"
+      - "-config"
+      - "api.disablekey=true"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/JSON/core/view/version/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
     networks:
       - bifrost
     labels:
