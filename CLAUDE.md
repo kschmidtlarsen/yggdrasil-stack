@@ -1,63 +1,95 @@
-# Yggdrasil - Unified Self-Hosted Platform Stack
+# Yggdrasil - Infrastructure Stack & Multi-Stack Platform
 
 ## Overview
 
-Yggdrasil is the unified Docker stack that hosts all platform services on the Unraid server (192.168.0.20). It replaces the previous Vercel + Neon cloud infrastructure with a fully self-hosted solution.
+Yggdrasil is the infrastructure backbone of a multi-stack Docker platform running on the Unraid server (192.168.0.20). The platform uses a hub-and-spoke architecture: one infrastructure stack (Yggdrasil) provides shared services — PostgreSQL, monitoring, AI, and auto-deployment — while each application runs as an independent Portainer stack, git-managed from its own repository.
 
 **Norse Mythology Naming:**
-- **Yggdrasil** - The World Tree (this stack / docker-compose)
-- **Bifrost** - Rainbow Bridge (Docker bridge network)
+- **Yggdrasil** - The World Tree (infrastructure stack / docker-compose)
+- **Bifrost** - Rainbow Bridge (Docker bridge network, shared across all stacks)
 - **Urd** - Well of Fate (PostgreSQL 17 database)
 - **Mimir** - The Wise One (AI orchestration / monitoring)
+
+**Key design principles:**
+- Infrastructure stack creates the Bifrost network; app stacks join it as `external: true`
+- No cross-stack `depends_on` — apps use healthcheck + restart policies to handle Urd availability
+- Infrastructure containers keep `yggdrasil-` prefix; app containers use clean names (e.g. `kanban`, `mimir`)
+- Each app has `docker-compose.prod.yml` in its own repo root
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Production Stack                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│   Developer Machine (/websites/)                             │
-│         │                                                    │
-│         ▼ git push                                           │
-│   ┌─────────────┐                                           │
-│   │   GitHub    │ ← Source control + CI/CD                  │
-│   └──────┬──────┘                                           │
-│          │ GitHub Actions                                    │
-│          ▼ Build Docker image → Push to registry            │
-│   ┌──────────────────────────────────────┐                  │
-│   │         Yggdrasil Stack              │                  │
-│   │  (Docker on Unraid - 192.168.0.20)   │                  │
-│   │                                      │                  │
-│   │  ┌──────────────┐  ┌─────────────┐  │                  │
-│   │  │  Watchtower  │  │     Urd     │  │                  │
-│   │  │ (auto-update)│  │(PostgreSQL) │  │                  │
-│   │  └──────┬───────┘  └──────┬──────┘  │                  │
-│   │         │                  │         │                  │
-│   │         ▼                  │         │                  │
-│   │  ┌─────────────────────────┴──────┐  │                  │
-│   │  │  App Containers (Bifrost net)  │  │                  │
-│   │  │  Kanban, Calify, WODForge...   │  │                  │
-│   │  └────────────────────────────────┘  │                  │
-│   │                                      │                  │
-│   │  ┌──────────────┐                   │                  │
-│   │  │  Portainer   │ ← Manual control  │                  │
-│   │  └──────────────┘                   │                  │
-│   └──────────────┬───────────────────────┘                  │
-│                  │                                           │
-│                  ▼                                           │
-│          ┌──────────────┐                                    │
-│          │  Cloudflare  │ ← Tunnel + Access protection      │
-│          │  Tunnel      │                                    │
-│          └──────┬───────┘                                    │
-│                 │                                            │
-│                 ▼                                            │
-│            Internet                                          │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                    Multi-Stack Platform                           │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│   Developer Machine (/websites/)                                  │
+│         │                                                         │
+│         ▼ git push (per repo)                                     │
+│   ┌─────────────┐                                                │
+│   │   GitHub    │ ← Source control + CI/CD                       │
+│   └──────┬──────┘                                                │
+│          │ GitHub Actions                                         │
+│          ▼ Build Docker image → Push to ghcr.io                  │
+│                                                                   │
+│   ┌──────────────────────────────────────────────────────────┐   │
+│   │              Portainer (Stack Orchestrator)               │   │
+│   │                                                          │   │
+│   │  ┌────────────────────────────────────────────────────┐  │   │
+│   │  │  Yggdrasil Infra Stack (ID 53)                     │  │   │
+│   │  │  Urd · Eir · Ollama · Chrome · Watchtower          │  │   │
+│   │  │  Dashboard · Browser                                │  │   │
+│   │  │  ← Creates Bifrost network                         │  │   │
+│   │  └──────────────────────┬─────────────────────────────┘  │   │
+│   │                         │ Bifrost (external: true)        │   │
+│   │  ┌──────────────────────┴─────────────────────────────┐  │   │
+│   │  │  App Stacks (IDs 54–66)                            │  │   │
+│   │  │  kanban · mimir · playwright · cos · calify        │  │   │
+│   │  │  grablist · nighttales · schmidt-larsen            │  │   │
+│   │  │  sorring3d · sorring-udlejning · wodforge          │  │   │
+│   │  │  nytsyn · stuffbase                                │  │   │
+│   │  │  ← Each git-managed from own repo                  │  │   │
+│   │  └────────────────────────────────────────────────────┘  │   │
+│   │                                                          │   │
+│   └──────────────────────────────────────────────────────────┘   │
+│                         │                                         │
+│                         ▼                                         │
+│                ┌──────────────┐                                   │
+│                │  Cloudflare  │ ← Tunnel + Access protection     │
+│                │  Tunnel      │                                   │
+│                └──────┬───────┘                                   │
+│                       │                                           │
+│                       ▼                                           │
+│                  Internet                                         │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 **Infrastructure Map:** `/home/coder/.claude/infrastructure.yml` (single source of truth)
+
+## Portainer Stacks
+
+All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-stack`); each app stack deploys from its own repo's `docker-compose.prod.yml`.
+
+| Stack ID | Name | Type | Repo | Services |
+|----------|------|------|------|----------|
+| 53 | yggdrasil | infra | yggdrasil-stack | Urd, Dashboard, Eir, Ollama, Chrome, Browser, Watchtower |
+| 54 | kanban | app | kanban | kanban |
+| 55 | mimir | app | mimir | mimir |
+| 56 | playwright | app | playwright | playwright |
+| 57 | cos | app | cos | cos |
+| 58 | calify | app | calify | calify |
+| 59 | grablist | app | grablist | grablist |
+| 60 | nighttales | app | nighttales | nighttales |
+| 61 | schmidt-larsen | app | schmidt-larsen | schmidt-larsen |
+| 62 | sorring3d | app | sorring3d | sorring3d |
+| 63 | sorring-udlejning | app | sorring-udlejning | sorring-udlejning |
+| 64 | wodforge | app | wodforge | wodforge |
+| 65 | nytsyn | app | nytsyn | nytsyn |
+| 66 | stuffbase | app | stuffbase | stuffbase |
+
+> **IMPORTANT:** When using Portainer MCP tools, always use `environment_id: 3`.
+> IDs 1 and 2 do not exist. The `docker` CLI is not available — use Portainer MCP tools instead.
 
 ## Port Scheme
 
@@ -68,30 +100,36 @@ Yggdrasil is the unified Docker stack that hosts all platform services on the Un
 - **9000** - Portainer web UI
 
 **Internal tools (61xx):**
-| Service | Container | Port | Domain |
-|---------|-----------|------|--------|
-| Kanban | yggdrasil-kanban | 6101 | kanban.exe.pm |
-| Playwright | yggdrasil-playwright | 6102 | playwright.exe.pm |
-| Mimir | yggdrasil-mimir | 6103 | mimir.exe.pm |
-| CoS | yggdrasil-cos | 6106 | cos.exe.pm |
-| Chrome | yggdrasil-chrome | 6107 | — (CDP only) |
+| Service | Container | Stack ID | Port | Domain |
+|---------|-----------|----------|------|--------|
+| Kanban | kanban | 54 | 6101 | kanban.exe.pm |
+| Playwright | playwright | 56 | 6102 | playwright.exe.pm |
+| Mimir | mimir | 55 | 6103 | mimir.exe.pm |
+| CoS | cos | 57 | 6106 | cos.exe.pm |
+| Chrome | yggdrasil-chrome | 53 | 6107 | — (CDP only) |
 
 **External sites (62xx):**
-| Service | Container | Port | Domain |
-|---------|-----------|------|--------|
-| Calify | yggdrasil-calify | 6201 | calify.it |
-| WODForge | yggdrasil-wodforge | 6202 | wodforge.exe.pm |
-| Sorring 3D | yggdrasil-sorring3d | 6203 | sorring3d.dk |
-| Sorring Udlejning | yggdrasil-sorring-udlejning | 6204 | sorringudlejning.dk |
-| Grablist | yggdrasil-grablist | 6205 | grablist.org |
-| Night Tales | yggdrasil-nighttales | 6206 | nighttales.cloud |
-| Schmidt Larsen | yggdrasil-schmidt-larsen | 6207 | schmidtlarsen.dk |
+| Service | Container | Stack ID | Port | Domain |
+|---------|-----------|----------|------|--------|
+| Calify | calify | 58 | 6201 | calify.it |
+| WODForge | wodforge | 64 | 6202 | wodforge.exe.pm |
+| Sorring 3D | sorring3d | 62 | 6203 | sorring3d.dk |
+| Sorring Udlejning | sorring-udlejning | 63 | 6204 | sorringudlejning.dk |
+| Grablist | grablist | 59 | 6205 | grablist.org |
+| Night Tales | nighttales | 60 | 6206 | nighttales.cloud |
+| Schmidt Larsen | schmidt-larsen | 61 | 6207 | schmidtlarsen.dk |
 
-**Infrastructure:**
+**Infrastructure (Stack 53):**
 | Service | Container | Port | Notes |
 |---------|-----------|------|-------|
 | Urd (PostgreSQL) | yggdrasil-urd | 5439 | Database |
-| Portainer | — | 9000 | Container management UI |
+| Yggdrasil Dashboard | yggdrasil-dashboard | — | Stack dashboard |
+| Eir | yggdrasil-eir | — | Backup service |
+| Ollama | yggdrasil-ollama | — | AI models |
+| Chrome | yggdrasil-chrome | 6107 | CDP browser |
+| Browser | yggdrasil-browser | — | Browser service |
+| Watchtower | yggdrasil-watchtower | — | Auto-update |
+| Portainer | — | 9000 | Container management UI (standalone) |
 
 ## Database Access (Urd)
 
@@ -129,8 +167,8 @@ postgresql://urd:{password}@192.168.0.20:5439/{database}?sslmode=disable
 ### Portainer
 
 **Web UI:** http://192.168.0.20:9000
-**Purpose:** Manual container management, stack configuration, image rollback
-**Stack ID:** 52 | **Environment ID:** 3
+**Purpose:** Stack orchestration, container management, image rollback
+**Infra Stack ID:** 53 | **Environment ID:** 3
 
 > **IMPORTANT:** When using Portainer MCP tools, always use `environment_id: 3`.
 > IDs 1 and 2 do not exist. The `docker` CLI is not available — use Portainer MCP tools instead.
@@ -189,7 +227,7 @@ Public sites (62xx ports, no Access):
 **Format:**
 - Shared secrets (no prefix): `GITHUB_TOKEN`, `SONAR_TOKEN`, `CF_ACCESS_CLIENT_ID`
 - Project-specific secrets: `{PROJECTNAME}_SECRET_NAME`
-- Portainer stack references these values when deploying
+- Each Portainer stack references these values via its environment variables
 
 **Example:**
 ```bash
@@ -262,13 +300,20 @@ curl https://kanban.exe.pm/api/health     # via Cloudflare
 
 ## Adding a New App
 
-1. Create `Dockerfile.yggdrasil` in the app directory
-2. Add GitHub Actions workflow (`.github/workflows/docker.yml`) for ghcr.io builds
-3. Add service definition to `docker-compose.yml` with appropriate port (next in 61xx/62xx)
-4. Create database in Urd (see Common Tasks below)
-5. Add connection string to `/home/coder/.claude/.env`
-6. Configure Cloudflare Tunnel for the domain
-7. Redeploy stack via Portainer
+1. Create the app repo with `Dockerfile.yggdrasil` and `docker-compose.prod.yml`
+2. In `docker-compose.prod.yml`, join the Bifrost network as external:
+   ```yaml
+   networks:
+     bifrost:
+       external: true
+   ```
+3. Use a clean container name (no `yggdrasil-` prefix) and assign the next available port (61xx/62xx)
+4. Do NOT add `depends_on: urd` — instead use healthcheck + `restart: unless-stopped` to handle Urd availability
+5. Add GitHub Actions workflow (`.github/workflows/docker.yml`) for ghcr.io builds
+6. Create database in Urd (see Common Tasks below)
+7. Add connection string and secrets to `/home/coder/.claude/.env`
+8. Create a new Portainer stack (git-managed from the app repo) with the next stack ID
+9. Configure Cloudflare Tunnel for the domain
 
 ## Common Tasks
 
@@ -309,13 +354,13 @@ GRANT ALL PRIVILEGES ON DATABASE {projectname}_db TO urd;
 
 ### Manual Container Restart
 ```bash
-# Via Portainer
+# Via Portainer MCP tools (preferred)
+# Use container_action with the container name
+
+# Via Portainer Web UI
 # 1. Open http://192.168.0.20:9000
 # 2. Navigate to Containers
 # 3. Select container → Restart
-
-# Via Docker CLI (if needed)
-docker restart yggdrasil-{service}-1
 ```
 
 ### Rollback Deployment
@@ -333,13 +378,13 @@ git push origin main
 
 ### View Container Logs
 ```bash
-# Via Portainer
+# Via Portainer MCP tools (preferred)
+# Use container_logs with the container ID
+
+# Via Portainer Web UI
 # 1. Open http://192.168.0.20:9000
 # 2. Navigate to Containers → {service}
 # 3. Click "Logs"
-
-# Via Docker CLI
-docker logs yggdrasil-{service}-1 --tail 100 -f
 ```
 
 ## Uptime Kuma Monitoring
@@ -397,9 +442,11 @@ Eir backs up all 13 databases, 2 upload volumes, .env, docker-compose.yml, and R
 
 **Container not starting:**
 ```bash
-# Check container logs in Portainer or via API
+# Check container health endpoint
 curl http://192.168.0.20:<port>/api/health
-docker logs yggdrasil-{service}-1 --tail 100
+
+# Check logs via Portainer MCP tools
+# Use container_logs with the container ID
 ```
 
 **Frontend shows "Not Found":**
@@ -412,8 +459,9 @@ docker logs yggdrasil-{service}-1 --tail 100
 
 **Database connection issues:**
 - Verify database exists in Urd
-- Check DATABASE_URL in Portainer environment
+- Check DATABASE_URL in the app stack's environment variables in Portainer
 - Test external connectivity: `psql -h 192.168.0.20 -p 5439 -U urd -W`
+- App containers handle Urd restarts via healthcheck + restart policy (no `depends_on` across stacks)
 
 ## CLI Tools
 
@@ -421,5 +469,4 @@ Available on the development machine:
 - `gh` - GitHub CLI (repos, actions, PRs)
 - `psql` - PostgreSQL client
 - `curl` - HTTP requests
-- `docker` - Container management (when on host)
 - `jq` - JSON processing
