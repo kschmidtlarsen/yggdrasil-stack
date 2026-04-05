@@ -114,3 +114,27 @@ CREATE DATABASE yggdrasil_db
     LC_COLLATE = 'en_US.UTF-8'
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
+
+-- NytSyn
+CREATE DATABASE nytsyn_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
+
+-- Stuffbase
+CREATE DATABASE stuffbase_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
+
+-- Forseti
+CREATE DATABASE forseti_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
