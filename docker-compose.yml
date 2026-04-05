@@ -217,6 +217,7 @@ services:
       - /mnt/user/websites/files/sorring-udlejning:/volumes/sorring-udlejning:ro
       - /mnt/user/websites/files/stuffbase:/volumes/stuffbase:ro
       - /mnt/user/websites/yggdrasil-stack/docker-compose.yml:/config/docker-compose.yml:ro
+      - /mnt/user/websites/yggdrasil-stack/init:/config/init:ro
     depends_on:
       urd:
         condition: service_healthy
