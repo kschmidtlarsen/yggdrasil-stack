@@ -55,6 +55,22 @@ const SERVICES = [
       { suffix: 'API', type: 'http', url: `http://${HOST}:6109/api/tags`, interval: 120 },
     ],
   },
+  {
+    name: 'ZAP Security Scanner',
+    slug: 'zap',
+    type: 'infrastructure',
+    monitors: [
+      { suffix: 'API', type: 'http', url: `http://${HOST}:6112/JSON/core/view/version/`, interval: 120 },
+    ],
+  },
+  {
+    name: 'Browser (noVNC)',
+    slug: 'browser',
+    type: 'infrastructure',
+    monitors: [
+      { suffix: 'UI', type: 'http', url: `http://${HOST}:6111`, interval: 120 },
+    ],
+  },
 
   // ── Internal Tools (61xx) ──
   {
@@ -96,6 +112,24 @@ const SERVICES = [
     ],
   },
   {
+    name: 'Forseti QA',
+    slug: 'forseti',
+    type: 'internal',
+    monitors: [
+      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6113/api/health`, keyword: '"status":"ok"', interval: 60 },
+      { suffix: 'External', type: 'http', url: 'https://forseti.exe.pm', interval: 300 },
+    ],
+  },
+  {
+    name: 'Stuffbase',
+    slug: 'stuffbase',
+    type: 'internal',
+    monitors: [
+      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6104/api/health`, keyword: '"status":"ok"', interval: 60 },
+      { suffix: 'External', type: 'http', url: 'https://stuffbase.exe.pm', interval: 300 },
+    ],
+  },
+  {
     name: 'Chief of Staff',
     slug: 'cos',
     type: 'external',
@@ -121,7 +155,7 @@ const SERVICES = [
     slug: 'wodforge',
     type: 'external',
     monitors: [
-      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6202/health`, keyword: '"status":"ok"', interval: 60 },
+      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6202/api/health`, keyword: '"status":"ok"', interval: 60 },
       { suffix: 'External', type: 'http', url: 'https://wodforge.exe.pm', interval: 300 },
     ],
   },
@@ -169,6 +203,15 @@ const SERVICES = [
     monitors: [
       { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6207/api/health`, keyword: '"status":"ok"', interval: 60 },
       { suffix: 'External', type: 'http', url: 'https://schmidtlarsen.dk', interval: 300 },
+    ],
+  },
+  {
+    name: 'NytSyn',
+    slug: 'nytsyn',
+    type: 'external',
+    monitors: [
+      { suffix: 'Internal Health', type: 'keyword', url: `http://${HOST}:6208/api/health`, keyword: '"status":"ok"', interval: 60 },
+      { suffix: 'External', type: 'http', url: 'https://nytsyn.schmidtlarsen.dk', interval: 300 },
     ],
   },
 
