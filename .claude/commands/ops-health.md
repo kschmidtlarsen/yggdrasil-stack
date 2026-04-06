@@ -53,23 +53,10 @@ else
   echo "❌ PgAdmin:6104: FAIL (HTTP $status)"
 fi
 
-# Umami (Analytics)
-status=$(curl -s -o /dev/null -w "%{http_code}" "http://192.168.0.20:6105/api/heartbeat" 2>/dev/null || echo "000")
-if [ "$status" = "200" ]; then
-  echo "✅ Umami:6105: OK"
-else
-  echo "❌ Umami:6105: FAIL (HTTP $status)"
-fi
-
 echo ""
 echo "=== Application Services (via External Domains) ==="
-for site in kanban.exe.pm playwright.exe.pm chiefofstaff.exe.pm analytics.exe.pm calify.it wodforge.exe.pm sorring3d.dk sorringudlejning.dk grablist.org nighttales.exe.pm; do
-  # Determine health endpoint (most use /api/health, umami uses /api/heartbeat)
-  if [[ "$site" == "analytics.exe.pm" ]]; then
-    endpoint="/api/heartbeat"
-  else
-    endpoint="/api/health"
-  fi
+for site in kanban.exe.pm playwright.exe.pm chiefofstaff.exe.pm calify.it wodforge.exe.pm sorring3d.dk sorringudlejning.dk grablist.org nighttales.exe.pm; do
+  endpoint="/api/health"
 
   status=$(curl -s -o /dev/null -w "%{http_code}" "https://$site$endpoint" 2>/dev/null || echo "000")
   time=$(curl -s -o /dev/null -w "%{time_total}" "https://$site$endpoint" 2>/dev/null || echo "N/A")
@@ -239,7 +226,6 @@ After all checks complete, output summary:
 | Urd (PostgreSQL) | 5439 | ✅ OK | Running | None |
 | Mimir (AI Orchestration) | 6103 | ✅ OK | Running | None |
 | PgAdmin | 6104 | ✅ OK | Running | None |
-| Umami (Analytics) | 6105 | ✅ OK | Running | None |
 
 ### Application Services - Internal Tools (61xx)
 | Service | Domain | Port | Status | Response | Container | Issues |
@@ -328,7 +314,7 @@ cat /home/coder/.claude/infrastructure.yml | yq '.services[] | .health_check.end
 
 **Quick reference:**
 - **Infrastructure services**: Urd (PostgreSQL:5439), PgAdmin (:6104), Mimir (:6103), Watchtower
-- **Internal tools (61xx)**: Kanban, Playwright, CoS, Umami Analytics
+- **Internal tools (61xx)**: Kanban, Playwright, CoS
 - **External websites (62xx)**: Calify, WODForge, Sorring 3D, Sorring Udlejning, Grablist, Night Tales
 - **Total services**: 14 (4 infrastructure + 10 applications)
 
