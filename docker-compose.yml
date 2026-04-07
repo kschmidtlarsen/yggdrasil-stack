@@ -11,7 +11,6 @@
 # - Yggdrasil Dashboard — Infrastructure operations platform
 # - Eir — Backup & recovery guardian
 # - Ollama — Local AI inference
-# - Chrome — Headless browser for DevTools MCP
 # - Browser — Firefox + noVNC for OAuth flows
 # - Watchtower — Automatic container updates
 #
@@ -133,40 +132,6 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # CHROME - Headless Browser for DevTools MCP
-  # Port: 6107 (CDP exposed for chrome-devtools-mcp)
-  # ─────────────────────────────────────────────────────────────────────────────
-  chrome:
-    image: zenika/alpine-chrome:latest
-    container_name: yggdrasil-chrome
-    restart: unless-stopped
-    ports:
-      - "6107:9222"
-    command:
-      - "--no-sandbox"
-      - "--remote-debugging-address=0.0.0.0"
-      - "--remote-debugging-port=9222"
-      - "--disable-gpu"
-      - "--disable-dev-shm-usage"
-      - "--headless"
-      - "about:blank"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:9222/json/version"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
-    networks:
-      - bifrost
-    labels:
-      - "com.centurylinklabs.watchtower.enable=false"
-
-  # ─────────────────────────────────────────────────────────────────────────────
   # BROWSER - Firefox + noVNC for OAuth flows
   # Port: 6111 (noVNC web UI)
   # Used to complete browser-based OAuth for remote MCP servers
@@ -260,46 +225,6 @@ services:
         limits:
           cpus: '2.0'
           memory: 4G
-    networks:
-      - bifrost
-    labels:
-      - "com.centurylinklabs.watchtower.enable=false"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # ZAP - OWASP ZAP Security Scanner (DAST)
-  # Port: 6112 (ZAP API for programmatic scans)
-  # Used by /test skill Phase 2.5 for dynamic security scanning
-  # ─────────────────────────────────────────────────────────────────────────────
-  zap:
-    image: zaproxy/zap-stable:latest
-    container_name: yggdrasil-zap
-    restart: unless-stopped
-    ports:
-      - "6112:8080"
-    command:
-      - "zap.sh"
-      - "-daemon"
-      - "-host"
-      - "0.0.0.0"
-      - "-port"
-      - "8080"
-      - "-config"
-      - "api.addrs.addr.name=.*"
-      - "-config"
-      - "api.addrs.addr.regex=true"
-      - "-config"
-      - "api.disablekey=true"
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/JSON/core/view/version/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
     networks:
       - bifrost
     labels:
