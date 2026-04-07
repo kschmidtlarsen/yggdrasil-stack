@@ -37,14 +37,14 @@ Yggdrasil is the infrastructure backbone of a multi-stack Docker platform runnin
 │   │                                                          │   │
 │   │  ┌────────────────────────────────────────────────────┐  │   │
 │   │  │  Yggdrasil Infra Stack (ID 53)                     │  │   │
-│   │  │  Urd · Eir · Ollama · Chrome · Watchtower          │  │   │
+│   │  │  Urd · Eir · Ollama · Watchtower                   │  │   │
 │   │  │  Dashboard · Browser                                │  │   │
 │   │  │  ← Creates Bifrost network                         │  │   │
 │   │  └──────────────────────┬─────────────────────────────┘  │   │
 │   │                         │ Bifrost (external: true)        │   │
 │   │  ┌──────────────────────┴─────────────────────────────┐  │   │
 │   │  │  App Stacks (IDs 54–66)                            │  │   │
-│   │  │  kanban · mimir · playwright · cos · calify        │  │   │
+│   │  │  kanban · mimir · forseti · cos · calify           │  │   │
 │   │  │  grablist · nighttales · schmidt-larsen            │  │   │
 │   │  │  sorring3d · sorring-udlejning · wodforge          │  │   │
 │   │  │  nytsyn · stuffbase                                │  │   │
@@ -73,10 +73,10 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 
 | Stack ID | Name | Type | Repo | Services |
 |----------|------|------|------|----------|
-| 53 | yggdrasil | infra | yggdrasil-stack | Urd, Dashboard, Eir, Ollama, Chrome, Browser, Watchtower |
+| 53 | yggdrasil | infra | yggdrasil-stack | Urd, Dashboard, Eir, Ollama, Browser, Watchtower |
 | 54 | kanban | app | kanban | kanban |
 | 55 | mimir | app | mimir | mimir |
-| 56 | playwright | app | playwright | playwright |
+| 67 | forseti | app | forseti | forseti, chrome, zap |
 | 57 | cos | app | cos | cos |
 | 58 | calify | app | calify | calify |
 | 59 | grablist | app | grablist | grablist |
@@ -103,10 +103,10 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | Service | Container | Stack ID | Port | Domain |
 |---------|-----------|----------|------|--------|
 | Kanban | kanban | 54 | 6101 | kanban.exe.pm |
-| Playwright | playwright | 56 | 6102 | playwright.exe.pm |
+| Forseti | forseti | 67 | 6113 | forseti.exe.pm |
 | Mimir | mimir | 55 | 6103 | mimir.exe.pm |
 | CoS | cos | 57 | 6106 | cos.exe.pm |
-| Chrome | yggdrasil-chrome | 53 | 6107 | — (CDP only) |
+| Chrome | forseti-chrome | 67 | 6107 | — (CDP only) |
 
 **External sites (62xx):**
 | Service | Container | Stack ID | Port | Domain |
@@ -126,7 +126,7 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | Yggdrasil Dashboard | yggdrasil-dashboard | — | Stack dashboard |
 | Eir | yggdrasil-eir | — | Backup service |
 | Ollama | yggdrasil-ollama | — | AI models |
-| Chrome | yggdrasil-chrome | 6107 | CDP browser |
+| Chrome | forseti-chrome (Forseti stack) | 6107 | CDP browser |
 | Browser | yggdrasil-browser | — | Browser service |
 | Watchtower | yggdrasil-watchtower | — | Auto-update |
 | Portainer | — | 9000 | Container management UI (standalone) |
@@ -152,7 +152,7 @@ postgresql://urd:{password}@192.168.0.20:5439/{database}?sslmode=disable
 | Project | Database | Schema |
 |---------|----------|--------|
 | kanban | kanban_db | public |
-| playwright | playwright_db | public |
+| forseti | forseti_db | public |
 | cos | cos_db | public |
 | mimir | mimir_db | public |
 | calify | calify_db | public |
@@ -215,7 +215,7 @@ CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}
 ```
 
 Internal tools (61xx ports) protected:
-- kanban.exe.pm, playwright.exe.pm, mimir.exe.pm, cos.exe.pm
+- kanban.exe.pm, forseti.exe.pm, mimir.exe.pm, cos.exe.pm
 
 Public sites (62xx ports, no Access):
 - calify.it, wodforge.exe.pm, sorring3d.dk, sorringudlejning.dk, grablist.org, nighttales.cloud
