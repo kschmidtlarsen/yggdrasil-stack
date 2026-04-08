@@ -19,50 +19,56 @@ Yggdrasil is the infrastructure backbone of a multi-stack Docker platform runnin
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                    Multi-Stack Platform                           │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│   Developer Machine (/websites/)                                  │
-│         │                                                         │
-│         ▼ git push (per repo)                                     │
-│   ┌─────────────┐                                                │
-│   │   GitHub    │ ← Source control + CI/CD                       │
-│   └──────┬──────┘                                                │
-│          │ GitHub Actions                                         │
-│          ▼ Build Docker image → Push to ghcr.io                  │
-│                                                                   │
-│   ┌──────────────────────────────────────────────────────────┐   │
-│   │              Portainer (Stack Orchestrator)               │   │
-│   │                                                          │   │
-│   │  ┌────────────────────────────────────────────────────┐  │   │
-│   │  │  Yggdrasil Infra Stack (ID 53)                     │  │   │
-│   │  │  Urd · Eir · Ollama · Watchtower                   │  │   │
-│   │  │  Dashboard · Browser                                │  │   │
-│   │  │  ← Creates Bifrost network                         │  │   │
-│   │  └──────────────────────┬─────────────────────────────┘  │   │
-│   │                         │ Bifrost (external: true)        │   │
-│   │  ┌──────────────────────┴─────────────────────────────┐  │   │
-│   │  │  App Stacks (IDs 54–66)                            │  │   │
-│   │  │  kanban · mimir · forseti · cos · calify           │  │   │
-│   │  │  grablist · nighttales · schmidt-larsen            │  │   │
-│   │  │  sorring3d · sorring-udlejning · wodforge          │  │   │
-│   │  │  nytsyn · stuffbase                                │  │   │
-│   │  │  ← Each git-managed from own repo                  │  │   │
-│   │  └────────────────────────────────────────────────────┘  │   │
-│   │                                                          │   │
-│   └──────────────────────────────────────────────────────────┘   │
-│                         │                                         │
-│                         ▼                                         │
-│                ┌──────────────┐                                   │
-│                │  Cloudflare  │ ← Tunnel + Access protection     │
-│                │  Tunnel      │                                   │
-│                └──────┬───────┘                                   │
-│                       │                                           │
-│                       ▼                                           │
-│                  Internet                                         │
-│                                                                   │
-└──────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                     Unraid Server (192.168.0.20)                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  Developer (/websites/) ──git push──▶ GitHub ──Actions──▶ ghcr.io      │
+│                                                               │         │
+│  ┌─────────────────────────────────────────────────────────┐  │         │
+│  │  Portainer (:9000)                         Watchtower ◀─┘  │         │
+│  │                                          (polls 5 min)     │         │
+│  │  ┌───────────────────────────────────────────────────┐     │         │
+│  │  │  INFRA STACK (ID 53) ── creates Bifrost network   │     │         │
+│  │  │                                                   │     │         │
+│  │  │  Urd (PostgreSQL 17)  ◀── all apps connect here   │     │         │
+│  │  │  Eir (backup)         ◀── backs up Urd + volumes  │     │         │
+│  │  │  Ollama (AI)          ◀── Mimir inference         │     │         │
+│  │  │  Dashboard (:6100)     Browser (:6111, noVNC)     │     │         │
+│  │  └───────────────────────────┬───────────────────────┘     │         │
+│  │                              │ Bifrost (external: true)    │         │
+│  │  ┌───────────────────────────┴───────────────────────┐     │         │
+│  │  │  APP STACKS (each git-managed, own repo)          │     │         │
+│  │  │                                                   │     │         │
+│  │  │  Internal tools (61xx, Cloudflare Access):        │     │         │
+│  │  │    kanban (54)  mimir (55)  forseti (67)          │     │         │
+│  │  │    cos (58)     stuffbase (57)  paperclip (71)    │     │         │
+│  │  │    spiir (70)                                     │     │         │
+│  │  │                                                   │     │         │
+│  │  │  External sites (62xx, public):                   │     │         │
+│  │  │    calify (59)   wodforge (60)   sorring3d (61)   │     │         │
+│  │  │    sorring-udl (62) grablist (63) schmidtlarsen(64)│    │         │
+│  │  │    nytsyn (65)   nighttales (66)                  │     │         │
+│  │  │                                                   │     │         │
+│  │  │  Forseti stack also hosts: Chrome (:6107) ZAP     │     │         │
+│  │  └───────────────────────────────────────────────────┘     │         │
+│  └─────────────────────────────────────────────────────────┘  │         │
+│                              │                                │         │
+│  ┌───────────────────────────┴──────────────────────────────┐ │         │
+│  │  KEY CONNECTIONS                                         │ │         │
+│  │                                                          │ │         │
+│  │  Mimir ◀──realtime──▶ kanban, yggdrasil, cos,           │ │         │
+│  │         ◀──AI/chat───▶ grablist, forseti, stuffbase      │ │         │
+│  │         ──inference──▶ Ollama                            │ │         │
+│  │                                                          │ │         │
+│  │  Eir ──backup──▶ Urd (all DBs) + file volumes           │ │         │
+│  │  Forseti ──CDP──▶ Chrome (headless browser for testing)  │ │         │
+│  └──────────────────────────────────────────────────────────┘ │         │
+│                              │                                          │
+│                    Cloudflare Tunnel + Access                            │
+│                              │                                          │
+│                          Internet                                       │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Infrastructure Map:** `/home/coder/.claude/infrastructure.yml` (single source of truth)
@@ -76,17 +82,19 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | 53 | yggdrasil | infra | yggdrasil-stack | Urd, Dashboard, Eir, Ollama, Browser, Watchtower |
 | 54 | kanban | app | kanban | kanban |
 | 55 | mimir | app | mimir | mimir |
-| 67 | forseti | app | forseti | forseti, chrome, zap |
-| 57 | cos | app | cos | cos |
-| 58 | calify | app | calify | calify |
-| 59 | grablist | app | grablist | grablist |
-| 60 | nighttales | app | nighttales | nighttales |
-| 61 | schmidt-larsen | app | schmidt-larsen | schmidt-larsen |
-| 62 | sorring3d | app | sorring3d | sorring3d |
-| 63 | sorring-udlejning | app | sorring-udlejning | sorring-udlejning |
-| 64 | wodforge | app | wodforge | wodforge |
+| 57 | stuffbase | app | stuffbase | stuffbase |
+| 58 | cos | app | chiefofstaff | cos |
+| 59 | calify | app | calify | calify |
+| 60 | wodforge | app | wodforge | wodforge |
+| 61 | sorring3d | app | sorring3d | sorring3d |
+| 62 | sorring-udlejning | app | sorring-udlejning | sorring-udlejning |
+| 63 | grablist | app | grablist | grablist |
+| 64 | schmidtlarsen | app | schmidt-larsen | schmidtlarsen |
 | 65 | nytsyn | app | nytsyn | nytsyn |
-| 66 | stuffbase | app | stuffbase | stuffbase |
+| 66 | nighttales | app | nighttales | nighttales |
+| 67 | forseti | app | forseti | forseti, chrome, zap |
+| 70 | spiir | app | spiir | spiir |
+| 71 | paperclip | app | paperclip | paperclip |
 
 > **IMPORTANT:** When using Portainer MCP tools, always use `environment_id: 3`.
 > IDs 1 and 2 do not exist. The `docker` CLI is not available — use Portainer MCP tools instead.
@@ -103,32 +111,37 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | Service | Container | Stack ID | Port | Domain |
 |---------|-----------|----------|------|--------|
 | Kanban | kanban | 54 | 6101 | kanban.exe.pm |
-| Forseti | forseti | 67 | 6113 | forseti.exe.pm |
 | Mimir | mimir | 55 | 6103 | mimir.exe.pm |
-| CoS | cos | 57 | 6106 | cos.exe.pm |
+| Stuffbase | stuffbase | 57 | 6104 | stuffbase.exe.pm |
+| CoS | cos | 58 | 6106 | cos.exe.pm |
+| Paperclip | paperclip | 71 | 6110 | paperclip.exe.pm |
+| Forseti | forseti | 67 | 6113 | forseti.exe.pm |
+| Spiir | spiir | 70 | 6209 | spiir.exe.pm |
 | Chrome | forseti-chrome | 67 | 6107 | — (CDP only) |
 
 **External sites (62xx):**
 | Service | Container | Stack ID | Port | Domain |
 |---------|-----------|----------|------|--------|
-| Calify | calify | 58 | 6201 | calify.it |
-| WODForge | wodforge | 64 | 6202 | wodforge.exe.pm |
-| Sorring 3D | sorring3d | 62 | 6203 | sorring3d.dk |
-| Sorring Udlejning | sorring-udlejning | 63 | 6204 | sorringudlejning.dk |
-| Grablist | grablist | 59 | 6205 | grablist.org |
-| Night Tales | nighttales | 60 | 6206 | nighttales.cloud |
-| Schmidt Larsen | schmidt-larsen | 61 | 6207 | schmidtlarsen.dk |
+| Calify | calify | 59 | 6201 | calify.it |
+| WODForge | wodforge | 60 | 6202 | wodforge.exe.pm |
+| Sorring 3D | sorring3d | 61 | 6203 | sorring3d.dk |
+| Sorring Udlejning | sorring-udlejning | 62 | 6204 | sorringudlejning.dk |
+| Grablist | grablist | 63 | 6205 | grablist.org |
+| Night Tales | nighttales | 66 | 6206 | nighttales.cloud |
+| Schmidt Larsen | schmidtlarsen | 64 | 6207 | schmidtlarsen.dk |
+| NytSyn | nytsyn | 65 | 6208 | nytsyn.schmidtlarsen.dk |
 
-**Infrastructure (Stack 53):**
+**Infrastructure (Stack 53 unless noted):**
 | Service | Container | Port | Notes |
 |---------|-----------|------|-------|
 | Urd (PostgreSQL) | yggdrasil-urd | 5439 | Database |
-| Yggdrasil Dashboard | yggdrasil-dashboard | — | Stack dashboard |
-| Eir | yggdrasil-eir | — | Backup service |
-| Ollama | yggdrasil-ollama | — | AI models |
-| Chrome | forseti-chrome (Forseti stack) | 6107 | CDP browser |
-| Browser | yggdrasil-browser | — | Browser service |
+| Yggdrasil Dashboard | yggdrasil-dashboard | 6100 | Ops dashboard |
+| Eir | yggdrasil-eir | 6108 | Backup service |
+| Ollama | yggdrasil-ollama | 6109 | AI models |
+| Browser | yggdrasil-browser | 6111 | Firefox + noVNC |
 | Watchtower | yggdrasil-watchtower | — | Auto-update |
+| Chrome | forseti-chrome | 6107 | CDP browser (Forseti stack 67) |
+| ZAP | forseti-zap | 6112 | DAST scanner (Forseti stack 67) |
 | Portainer | — | 9000 | Container management UI (standalone) |
 
 ## Database Access (Urd)
