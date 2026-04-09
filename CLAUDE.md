@@ -400,39 +400,6 @@ git push origin main
 # 3. Click "Logs"
 ```
 
-## Uptime Kuma Monitoring
-
-**Dashboard:** http://192.168.0.20:3001
-**Status page:** http://192.168.0.20:3001/status/yggdrasil
-**Sync tool:** `node /websites/yggdrasil/scripts/kuma-sync.js`
-
-All Yggdrasil monitors are managed via the kuma-sync tool and tagged `yggdrasil` in Uptime Kuma.
-
-```bash
-# Sync monitors to match config (idempotent)
-node scripts/kuma-sync.js sync
-
-# Show managed monitor status
-node scripts/kuma-sync.js status
-
-# Pause monitors before maintenance
-node scripts/kuma-sync.js pause kanban
-node scripts/kuma-sync.js pause all
-
-# Resume after maintenance
-node scripts/kuma-sync.js resume kanban
-
-# Delete all managed monitors and recreate
-node scripts/kuma-sync.js nuke && sleep 15 && node scripts/kuma-sync.js sync
-```
-
-**Adding monitors for a new service:** Edit `scripts/kuma-monitors.js`, add a service entry, run `sync`.
-
-**Monitor types per service:**
-- Internal Health: keyword check on `http://192.168.0.20:<port>/api/health`
-- DB Connected: keyword check for database status (services that expose it)
-- External: HTTP check on the public domain
-
 ## Disaster Recovery
 
 Full rebuild guide: `/websites/eir/REBUILD.md`
