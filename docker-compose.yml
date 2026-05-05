@@ -262,8 +262,10 @@ services:
       WATCHTOWER_INCLUDE_STOPPED: "true"
       # Revive stopped containers after update
       WATCHTOWER_REVIVE_STOPPED: "true"
-      # Rolling restarts (one container at a time)
-      WATCHTOWER_ROLLING_RESTART: "true"
+      # Rolling restart removed: nickfedor/watchtower validates rolling-restart
+      # compatibility and refuses to update any container that has depends_on
+      # links (e.g. yggdrasil-dashboard depends_on yggdrasil-urd). Sequential
+      # stop+pull+start (the default) is fine for this single-replica setup.
       # Log level
       WATCHTOWER_DEBUG: "false"
     volumes:
