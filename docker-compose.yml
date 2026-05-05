@@ -233,8 +233,13 @@ services:
   # ─────────────────────────────────────────────────────────────────────────────
   # WATCHTOWER - Automatic Container Updates & Image Cleanup
   # ─────────────────────────────────────────────────────────────────────────────
+  # NOTE: Switched from containrrr/watchtower (unmaintained, last release 2023-11)
+  # to nickfedor/watchtower fork on 2026-05-05. The original ships an old Docker
+  # SDK (client API v1.25) that current Docker daemons (which require v1.40+)
+  # reject — Watchtower then crash-loops with "client version 1.25 is too old".
+  # nickfedor/watchtower is a drop-in replacement that tracks modern Docker APIs.
   watchtower:
-    image: containrrr/watchtower:latest
+    image: nickfedor/watchtower:latest
     container_name: yggdrasil-watchtower
     restart: unless-stopped
     environment:
