@@ -252,7 +252,11 @@ services:
       resources:
         limits:
           cpus: '4.0'
-          memory: 8G
+          # 12G (was 8G) — model-swap workspace needs headroom: loading a new
+          # 8B model while another is still being unloaded briefly consumes
+          # 2× the model size in system RAM, plus KV cache. With 8G we hit
+          # OOM during the hermes3→llama3-groq-tool-use swap.
+          memory: 12G
         reservations:
           devices:
             - driver: nvidia
