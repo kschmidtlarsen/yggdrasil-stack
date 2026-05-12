@@ -223,6 +223,25 @@ services:
       - "6109:11434"
     volumes:
       - ollama-models:/root/.ollama
+    environment:
+      # GPU passthrough — Unraid Nvidia plugin is installed on the host, so
+      # the nvidia-container-runtime is wired into Docker. NVIDIA_VISIBLE_DEVICES
+      # =all picks every Nvidia card; capabilities=all unlocks compute + utility
+      # which CUDA + cuBLAS need. The reservations clause below is what actually
+      # requests the device in Compose v3.
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      # Keep loaded models in VRAM indefinitely — otherwise ollama unloads after
+      # 5 min of idleness and the next request pays a 5-10s reload tax PLUS
+      # blows the OpenAI SDK's 3-retry timeout. Tradeoff: 8B-Q4 hermes3 parks
+      # ~5GB of VRAM permanently. Acceptable for a personal assistant.
+      OLLAMA_KEEP_ALIVE: "-1"
+      # Default num_ctx for hermes3 is 4096 — Hermes' bundled system prompt
+      # alone exceeds that and we saw "API call failed after 3 retries: Request
+      # timed out". Bump to 32K so prompts don't truncate. Hermes docs say 64K
+      # minimum; 32K fits most agent workflows and keeps VRAM use lower. Raise
+      # to 65536 if context-limit errors appear in agent.log.
+      OLLAMA_NUM_CTX: "32768"
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 30s
@@ -234,6 +253,11 @@ services:
         limits:
           cpus: '4.0'
           memory: 8G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, compute, utility]
     networks:
       - bifrost
     labels:
