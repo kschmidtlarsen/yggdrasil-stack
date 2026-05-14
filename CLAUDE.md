@@ -42,8 +42,7 @@ Yggdrasil is the infrastructure backbone of a multi-stack Docker platform runnin
 │  │  │                                                   │     │         │
 │  │  │  Internal tools (61xx, Cloudflare Access):        │     │         │
 │  │  │    kanban (54)  mimir (55)  forseti (67)          │     │         │
-│  │  │    cos (58)     stuffbase (57)  paperclip (71)    │     │         │
-│  │  │    spiir (70)                                     │     │         │
+│  │  │    cos (58)     stuffbase (57)  spiir (70)        │     │         │
 │  │  │                                                   │     │         │
 │  │  │  External sites (62xx, public):                   │     │         │
 │  │  │    calify (59)   wodforge (60)   sorring3d (61)   │     │         │
@@ -94,7 +93,6 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | 66 | nighttales | app | nighttales | nighttales |
 | 67 | forseti | app | forseti | forseti, chrome, zap |
 | 70 | spiir | app | spiir | spiir |
-| 71 | paperclip | app | paperclip | paperclip |
 
 > **IMPORTANT:** When using Portainer MCP tools, always use `environment_id: 3`.
 > IDs 1 and 2 do not exist. The `docker` CLI is not available — use Portainer MCP tools instead.
@@ -114,7 +112,6 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | Mimir | mimir | 55 | 6103 | mimir.exe.pm |
 | Stuffbase | stuffbase | 57 | 6104 | stuffbase.exe.pm |
 | CoS | cos | 58 | 6106 | cos.exe.pm |
-| Paperclip | paperclip | 71 | 6110 | paperclip.exe.pm |
 | Forseti | forseti | 67 | 6113 | forseti.exe.pm |
 | Spiir | spiir | 70 | 6209 | spiir.exe.pm |
 | Chrome | forseti-chrome | 67 | 6107 | — (CDP only) |
