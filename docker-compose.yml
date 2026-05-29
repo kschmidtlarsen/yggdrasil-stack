@@ -279,6 +279,11 @@ services:
     image: nickfedor/watchtower:latest
     container_name: yggdrasil-watchtower
     restart: unless-stopped
+    ports:
+      # HTTP API on :8080 — Homepage's watchtower widget polls this.
+      # Homepage runs on the bridge network (separate from bifrost), so the
+      # port has to be reachable on the host IP. Token below is the auth.
+      - "8080:8080"
     environment:
       # Only update containers with the watchtower.enable=true label
       WATCHTOWER_LABEL_ENABLE: "true"
@@ -290,6 +295,10 @@ services:
       WATCHTOWER_INCLUDE_STOPPED: "true"
       # Revive stopped containers after update
       WATCHTOWER_REVIVE_STOPPED: "true"
+      # HTTP API for Homepage widget — token injected via Portainer stack env
+      # (see CLAUDE.md: infra services may use stack env vars for interpolation).
+      WATCHTOWER_HTTP_API_METRICS: "true"
+      WATCHTOWER_HTTP_API_TOKEN: ${WATCHTOWER_HTTP_API_TOKEN}
       # Rolling restart removed: nickfedor/watchtower validates rolling-restart
       # compatibility and refuses to update any container that has depends_on
       # links (e.g. yggdrasil-dashboard depends_on yggdrasil-urd). Sequential
