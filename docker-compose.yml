@@ -280,10 +280,11 @@ services:
     container_name: yggdrasil-watchtower
     restart: unless-stopped
     ports:
-      # HTTP API on :8080 — Homepage's watchtower widget polls this.
-      # Homepage runs on the bridge network (separate from bifrost), so the
-      # port has to be reachable on the host IP. Token below is the auth.
-      - "8080:8080"
+      # HTTP API for Homepage's watchtower widget. Internal :8080 is
+      # watchtower's default; host :8088 avoids the SABnzbd collision on 8080.
+      # Homepage is on the bridge network (not bifrost), so the API has to be
+      # reachable on the host IP. Token below is the auth.
+      - "8088:8080"
     environment:
       # Only update containers with the watchtower.enable=true label
       WATCHTOWER_LABEL_ENABLE: "true"
