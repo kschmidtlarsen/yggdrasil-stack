@@ -47,7 +47,7 @@ Yggdrasil is the infrastructure backbone of a multi-stack Docker platform runnin
 │  │  │  External sites (62xx, public):                   │     │         │
 │  │  │    calify (59)   wodforge (60)   sorring3d (61)   │     │         │
 │  │  │    sorring-udl (62) grablist (63) schmidtlarsen(64)│    │         │
-│  │  │    nytsyn (65)   nighttales (66)                  │     │         │
+│  │  │    nighttales (66)                                │     │         │
 │  │  │                                                   │     │         │
 │  │  │  Forseti stack also hosts: Chrome (:6107) ZAP     │     │         │
 │  │  └───────────────────────────────────────────────────┘     │         │
@@ -89,7 +89,6 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | 62 | sorring-udlejning | app | sorring-udlejning | sorring-udlejning |
 | 63 | grablist | app | grablist | grablist |
 | 64 | schmidtlarsen | app | schmidt-larsen | schmidtlarsen |
-| 65 | nytsyn | app | nytsyn | nytsyn |
 | 66 | nighttales | app | nighttales | nighttales |
 | 67 | forseti | app | forseti | forseti, chrome, zap |
 | 70 | spiir | app | spiir | spiir |
@@ -126,7 +125,6 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | Grablist | grablist | 63 | 6205 | grablist.org |
 | Night Tales | nighttales | 66 | 6206 | nighttales.cloud |
 | Schmidt Larsen | schmidtlarsen | 64 | 6207 | schmidtlarsen.dk |
-| NytSyn | nytsyn | 65 | 6208 | nytsyn.schmidtlarsen.dk |
 
 **Infrastructure (Stack 53 unless noted):**
 | Service | Container | Port | Notes |
