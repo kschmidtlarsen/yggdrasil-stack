@@ -74,11 +74,6 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- NytSyn
-\c nytsyn_db
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
 -- Stuffbase
 \c stuffbase_db
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
