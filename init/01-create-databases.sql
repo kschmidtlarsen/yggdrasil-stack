@@ -154,3 +154,11 @@ CREATE DATABASE huginn_db
     LC_COLLATE = 'en_US.UTF-8'
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
+
+-- Opportunity Scout (job-posting scraper & tracker)
+CREATE DATABASE opportunity_scout_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
