@@ -268,6 +268,35 @@ services:
       - "com.centurylinklabs.watchtower.enable=false"
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # DESIGN SYSTEM — "Graphite Iris" shared CSS/tokens for every *.exe.pm app
+  # Port: 6110 | Domain: design.exe.pm (PUBLIC — no Cloudflare Access, so public
+  # sites can load it too). Own repo/image/CI (kschmidtlarsen/design-system);
+  # Watchtower updates ONLY this container when a new image lands, so editing the
+  # design never redeploys the infra stack / Urd.
+  # ─────────────────────────────────────────────────────────────────────────────
+  design:
+    image: ghcr.io/kschmidtlarsen/design-system:latest
+    container_name: yggdrasil-design
+    restart: unless-stopped
+    ports:
+      - "6110:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/latest/iris.css"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+    networks:
+      - bifrost
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # WATCHTOWER - Automatic Container Updates & Image Cleanup
   # ─────────────────────────────────────────────────────────────────────────────
   # NOTE: Switched from containrrr/watchtower (unmaintained, last release 2023-11)
