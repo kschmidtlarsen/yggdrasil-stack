@@ -170,3 +170,12 @@ CREATE DATABASE kvasir_db
     LC_COLLATE = 'en_US.UTF-8'
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
+
+-- Warehouse read-plane (postgres_fdw federation over app DBs; card-ce569df9).
+-- FDW servers/foreign-tables/views are set up separately: yggdrasil/warehouse/setup.sql
+CREATE DATABASE warehouse_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
