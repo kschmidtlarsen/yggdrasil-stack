@@ -28,11 +28,6 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Playwright
-\c playwright_db
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
 -- Schmidt Larsen
 \c schmidtlarsen_db
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

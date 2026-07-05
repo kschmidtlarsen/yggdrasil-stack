@@ -43,14 +43,6 @@ CREATE DATABASE nighttales_db
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
 
--- Playwright Dashboard
-CREATE DATABASE playwright_db
-    WITH OWNER = urd
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'en_US.UTF-8'
-    LC_CTYPE = 'en_US.UTF-8'
-    TEMPLATE = template0;
-
 -- Schmidt Larsen
 CREATE DATABASE schmidtlarsen_db
     WITH OWNER = urd
