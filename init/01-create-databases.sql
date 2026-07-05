@@ -163,8 +163,24 @@ CREATE DATABASE opportunity_scout_db
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
 
--- Kvasir (BitNet local LLM inference service)
-CREATE DATABASE kvasir_db
+-- Spiir (personal finance / budgeting)
+CREATE DATABASE spiir_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
+
+-- Bragi (voice-first PA frontend)
+CREATE DATABASE bragi_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
+
+-- Muninn (personality layer)
+CREATE DATABASE muninn_db
     WITH OWNER = urd
     ENCODING = 'UTF8'
     LC_COLLATE = 'en_US.UTF-8'
