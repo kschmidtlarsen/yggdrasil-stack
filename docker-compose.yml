@@ -97,7 +97,7 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 2G
+          memory: 4G
     networks:
       - bifrost
     labels:
