@@ -27,7 +27,7 @@ Yggdrasil is the infrastructure backbone of a multi-stack Docker platform runnin
 │                                                               │         │
 │  ┌─────────────────────────────────────────────────────────┐  │         │
 │  │  Portainer (:9000)                         Watchtower ◀─┘  │         │
-│  │                                          (polls 5 min)     │         │
+│  │                                          (polls 60s)      │         │
 │  │  ┌───────────────────────────────────────────────────┐     │         │
 │  │  │  INFRA STACK (ID 53) ── creates Bifrost network   │     │         │
 │  │  │                                                   │     │         │
@@ -35,6 +35,7 @@ Yggdrasil is the infrastructure backbone of a multi-stack Docker platform runnin
 │  │  │  Eir (backup)         ◀── backs up Urd + volumes  │     │         │
 │  │  │  Ollama (AI)          ◀── Mimir inference         │     │         │
 │  │  │  Dashboard (:6100)     Browser (:6111, noVNC)     │     │         │
+│  │  │  Design (:6110, design.exe.pm — Graphite Iris)    │     │         │
 │  │  └───────────────────────────┬───────────────────────┘     │         │
 │  │                              │ Bifrost (external: true)    │         │
 │  │  ┌───────────────────────────┴───────────────────────┐     │         │
@@ -78,7 +79,7 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 
 | Stack ID | Name | Type | Repo | Services |
 |----------|------|------|------|----------|
-| 53 | yggdrasil | infra | yggdrasil-stack | Urd, Dashboard, Eir, Ollama, Browser, Watchtower |
+| 53 | yggdrasil | infra | yggdrasil-stack | Urd, Dashboard, Eir, Ollama, Browser, Design, Watchtower |
 | 54 | kanban | app | kanban | kanban |
 | 55 | mimir | app | mimir | mimir |
 | 57 | stuffbase | app | stuffbase | stuffbase |
@@ -92,6 +93,15 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | 66 | nighttales | app | nighttales | nighttales |
 | 67 | forseti | app | forseti | forseti, chrome, zap |
 | 70 | spiir | app | spiir | spiir |
+| 89 | bragi | app | bragi | bragi (+ MCP sidecars) |
+| 90 | heimdall | app | heimdall | heimdall (OAuth gateway) |
+| 92 | muninn | app | muninn | muninn |
+| 95 | legevenner | app | legevenner | legevenner |
+| 96 | strider | app | strider | strider |
+| 98 | huginn | app | huginn | huginn, huginn-discovery, capture-node, huginn-firefox |
+| 100 | opportunity-scout | app | opportunity-scout | opportunity-scout |
+
+> Additional MCP/support stacks exist (e.g. kanban-mcp, muninn-mcp, portainer-mcp) — see `infrastructure.yml` for the full list.
 
 > **IMPORTANT:** When using Portainer MCP tools, always use `environment_id: 3`.
 > IDs 1 and 2 do not exist. The `docker` CLI is not available — use Portainer MCP tools instead.
@@ -134,6 +144,7 @@ All stacks are git-managed. The infra stack deploys from this repo (`yggdrasil-s
 | Eir | yggdrasil-eir | 6108 | Backup service |
 | Ollama | yggdrasil-ollama | 6109 | AI models |
 | Browser | yggdrasil-browser | 6111 | Firefox + noVNC |
+| Design | yggdrasil-design | 6110 | Graphite Iris design system (design.exe.pm, public) |
 | Watchtower | yggdrasil-watchtower | — | Auto-update |
 | Chrome | forseti-chrome | 6107 | CDP browser (Forseti stack 67) |
 | ZAP | forseti-zap | 6112 | DAST scanner (Forseti stack 67) |
@@ -156,19 +167,32 @@ postgresql://urd:{password}@urd:5432/{database}?sslmode=disable
 postgresql://urd:{password}@192.168.0.20:5439/{database}?sslmode=disable
 ```
 
-**Databases:**
+**Databases:** 23 created by `init/01-create-databases.sql` (all schema `public`, owner `urd`):
 | Project | Database | Schema |
 |---------|----------|--------|
 | kanban | kanban_db | public |
-| forseti | forseti_db | public |
-| cos | cos_db | public |
-| mimir | mimir_db | public |
 | calify | calify_db | public |
-| wodforge | wodforge_db | public |
-| sorring3d | sorring3d_db | public |
-| sorring-udlejning | sorring_db | public |
 | grablist | grablist_db | public |
+| cos | cos_db | public |
 | nighttales | nighttales_db | public |
+| schmidtlarsen | schmidtlarsen_db | public |
+| sorring3d | sorring3d_db | public |
+| sorring-udlejning | sorring_udlejning_db | public |
+| wodforge | wodforge_db | public |
+| mimir | mimir_db | public |
+| eir | eir_db | public |
+| config (shared) | config_db | public |
+| yggdrasil | yggdrasil_db | public |
+| stuffbase | stuffbase_db | public |
+| forseti | forseti_db | public |
+| legevenner | legevenner_db | public |
+| strider | strider_db | public |
+| huginn | huginn_db | public |
+| opportunity-scout | opportunity_scout_db | public |
+| spiir | spiir_db | public |
+| bragi | bragi_db | public |
+| muninn | muninn_db | public |
+| warehouse (read-plane) | warehouse_db | public |
 
 ## Service Reference
 
@@ -191,13 +215,13 @@ postgresql://urd:{password}@192.168.0.20:5439/{database}?sslmode=disable
 ### Watchtower
 
 **Purpose:** Automated container updates
-**Interval:** 5 minutes
+**Interval:** 60 seconds (`WATCHTOWER_POLL_INTERVAL: 60`)
 **Trigger:** Detects new images in registry, pulls and restarts containers
 
 **Deployment Flow:**
 1. Developer pushes to GitHub `main` branch
 2. GitHub Actions builds Docker image and pushes to registry
-3. Watchtower detects new image within 5 minutes
+3. Watchtower detects new image within ~60 seconds
 4. Watchtower pulls image and restarts container
 5. Health endpoint shows new BUILD_COMMIT
 
@@ -333,7 +357,7 @@ git commit -m "Description"
 git push origin main
 
 # GitHub Actions builds Docker image
-# Watchtower auto-deploys within 5 minutes
+# Watchtower auto-deploys within ~60 seconds
 ```
 
 ### Check Deployment Status
@@ -376,7 +400,7 @@ GRANT ALL PRIVILEGES ON DATABASE {projectname}_db TO urd;
 # Option 1: Git revert (preferred)
 git revert HEAD
 git push origin main
-# Watchtower auto-deploys reverted code within 5 minutes
+# Watchtower auto-deploys reverted code within ~60 seconds
 
 # Option 2: Portainer manual rollback
 # 1. Open http://192.168.0.20:9000
@@ -400,7 +424,7 @@ git push origin main
 Full rebuild guide: `/websites/eir/REBUILD.md`
 Also copied to backup root: `/mnt/user/backup/websites/REBUILD.md`
 
-Eir backs up all 13 databases, 2 upload volumes, .env, docker-compose.yml, and REBUILD.md twice daily.
+Eir backs up all databases (23 created by init SQL; discovery is dynamic), 3 upload volumes (sorring3d, sorring-udlejning, stuffbase), .env, docker-compose.yml, and REBUILD.md twice daily.
 
 ## Volumes
 
@@ -411,6 +435,7 @@ Eir backs up all 13 databases, 2 upload volumes, .env, docker-compose.yml, and R
 **File uploads (bind-mounted from Unraid share):**
 - `/mnt/user/websites/files/sorring3d` → `/app/uploads` (sorring3d) + `/volumes/sorring3d` (eir, read-only)
 - `/mnt/user/websites/files/sorring-udlejning` → `/app/uploads` (sorring-udlejning) + `/volumes/sorring-udlejning` (eir, read-only)
+- `/mnt/user/websites/files/stuffbase` → `/app/uploads` (stuffbase) + `/volumes/stuffbase` (eir, read-only)
 - `/mnt/user/websites/files/{project}` — convention for all future project file storage
 
 ## Troubleshooting
