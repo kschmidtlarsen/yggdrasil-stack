@@ -195,3 +195,11 @@ CREATE DATABASE forge_db
     LC_COLLATE = 'en_US.UTF-8'
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
+
+-- Freyr (intelligent home plant care — watering/fertilization schedules)
+CREATE DATABASE freyr_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
