@@ -300,7 +300,13 @@ services:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # NTFY - Self-hosted push, so notifications stop depending on Google
+  # Port: 6129
   # ─────────────────────────────────────────────────────────────────────────────
+  # 6129, NOT 6120. 6120 is free in every container listing and in
+  # infrastructure.yml, and the daemon still refused it: "failed to bind host port
+  # 0.0.0.0:6120: address already in use". Something outside Docker holds it and
+  # answers 404. A container listing is not a port allocator — probe the host
+  # before claiming a port.
   # Web Push (what Muninn and Freyr use today) cannot avoid an online service:
   # the spec routes every message through the browser vendor's push service —
   # FCM for Chrome/Android. The VAPID keypair authenticates US TO GOOGLE; it does
@@ -324,7 +330,7 @@ services:
     container_name: ntfy
     restart: unless-stopped
     ports:
-      - "6120:80"
+      - "6129:80"
     environment:
       NTFY_BASE_URL: https://ntfy.exe.pm
       NTFY_LISTEN_HTTP: ":80"
