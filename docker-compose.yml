@@ -364,6 +364,24 @@ services:
           echo "[ntfy] refusing to start rather than serving with deny-all and no user" >&2
           exit 1
         fi
+        # ntfy REFUSES `user add` until the auth database exists, and only the
+        # server creates it: "auth-file does not exist; please start the server at
+        # least once". So on a fresh volume the server is started once in the
+        # background purely to create it, then stopped before the real one execs.
+        # Without this the container crash-loops forever on an empty volume.
+        if [ ! -f /var/lib/ntfy/user.db ]; then
+          echo "[ntfy] no auth db yet — starting once to create it"
+          ntfy serve &
+          SRV=$$!
+          i=0
+          while [ ! -f /var/lib/ntfy/user.db ] && [ $$i -lt 30 ]; do i=$$((i+1)); sleep 1; done
+          kill "$$SRV" 2>/dev/null || true
+          wait "$$SRV" 2>/dev/null || true
+          if [ ! -f /var/lib/ntfy/user.db ]; then
+            echo "[ntfy] FATAL: auth db still missing after 30s" >&2
+            exit 1
+          fi
+        fi
         # Idempotent: `user add` on an existing user is an error, so check first.
         if ! ntfy user list 2>/dev/null | grep -q "^user $$NU"; then
           NTFY_PASSWORD="$$NP" ntfy user add --role=admin "$$NU"
