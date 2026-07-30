@@ -39,6 +39,8 @@ volumes:
     name: yggdrasil-urd-data
   ollama-models:
     name: yggdrasil-ollama-models
+  ntfy-data:
+    name: yggdrasil-ntfy-data
 
   # File uploads: bind-mounted from /mnt/user/websites/files/{project}
   # No named volumes — files live on the Unraid share for easy backup
@@ -291,6 +293,91 @@ services:
         limits:
           cpus: '0.25'
           memory: 64M
+    networks:
+      - bifrost
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NTFY - Self-hosted push, so notifications stop depending on Google
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Web Push (what Muninn and Freyr use today) cannot avoid an online service:
+  # the spec routes every message through the browser vendor's push service —
+  # FCM for Chrome/Android. The VAPID keypair authenticates US TO GOOGLE; it does
+  # not remove Google. It also brings a subscription lifecycle that has now failed
+  # twice: subscriptions expire, get pruned on a 410, and the PWA has to be
+  # re-enabled by hand — which is exactly what happened on 2026-07-30, silently.
+  #
+  # ntfy replaces that with a connection the PHONE holds to THIS server. No push
+  # service, no VAPID, no subscription table, nothing to expire.
+  #
+  # AUTH IS DENY-ALL. This host is reachable with Cloudflare Access BYPASSED (the
+  # ntfy Android app cannot do Access's interactive login), so ntfy's own auth is
+  # the only thing in front of it. Everything requires a credential; an unguessable
+  # topic is defence in depth, never the defence.
+  #
+  # The user is seeded by the entrypoint rather than by `docker exec`, so the stack
+  # is reproducible from this file alone — a container recreated on a fresh volume
+  # comes up usable instead of silently rejecting every publish.
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    restart: unless-stopped
+    ports:
+      - "6120:80"
+    environment:
+      NTFY_BASE_URL: https://ntfy.exe.pm
+      NTFY_LISTEN_HTTP: ":80"
+      # Behind the Cloudflare tunnel, so trust the proxy for client IPs/rate limits.
+      NTFY_BEHIND_PROXY: "true"
+      NTFY_AUTH_FILE: /var/lib/ntfy/user.db
+      # Nothing is readable or publishable without credentials.
+      NTFY_AUTH_DEFAULT_ACCESS: deny-all
+      NTFY_CACHE_FILE: /var/lib/ntfy/cache.db
+      # Long enough that a phone offline overnight still collects what it missed.
+      NTFY_CACHE_DURATION: "24h"
+      NTFY_ATTACHMENT_CACHE_DIR: /var/lib/ntfy/attachments
+      NTFY_ENABLE_SIGNUP: "false"
+      NTFY_ENABLE_LOGIN: "true"
+    # Credentials come from the stack's single source of truth rather than Portainer
+    # stack env vars. Two reasons: this compose is git-managed, and the Portainer
+    # MCP cannot add a NEW env var to a private git stack — a ${VAR} that is not
+    # already in the Env array interpolates to EMPTY and the seeding would silently
+    # create a passwordless admin. Reading the file at runtime cannot fail that way.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        SECRETS=/run/secrets/claude.env
+        # Parsed line-by-line, not sourced: that file holds many unrelated values
+        # and one stray quote or space would take the whole container down.
+        NU=$$(sed -n 's/^NTFY_USER=//p' "$$SECRETS" | tr -d '"'"'"'\r' | head -1)
+        NP=$$(sed -n 's/^NTFY_PASSWORD=//p' "$$SECRETS" | tr -d '"'"'"'\r' | head -1)
+        if [ -z "$$NU" ] || [ -z "$$NP" ]; then
+          echo "[ntfy] FATAL: NTFY_USER/NTFY_PASSWORD missing from $$SECRETS" >&2
+          echo "[ntfy] refusing to start rather than serving with deny-all and no user" >&2
+          exit 1
+        fi
+        # Idempotent: `user add` on an existing user is an error, so check first.
+        if ! ntfy user list 2>/dev/null | grep -q "^user $$NU"; then
+          NTFY_PASSWORD="$$NP" ntfy user add --role=admin "$$NU"
+          echo "[ntfy] seeded user $$NU"
+        fi
+        exec ntfy serve
+    volumes:
+      - ntfy-data:/var/lib/ntfy
+      - /mnt/user/appdata/claude/.env:/run/secrets/claude.env:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/v1/health | grep -q '\"healthy\":true'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
     networks:
       - bifrost
     labels:
