@@ -123,13 +123,10 @@ CREATE DATABASE forseti_db
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
 
--- Legevenner
-CREATE DATABASE legevenner_db
-    WITH OWNER = urd
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'en_US.UTF-8'
-    LC_CTYPE = 'en_US.UTF-8'
-    TEMPLATE = template0;
+-- Legevenner: RETIRED 2026-08-04. Do NOT re-add — Eir's db-heartbeat parses
+-- CREATE DATABASE lines here as its expected-database list, so a name left
+-- behind reports MISSING every heartbeat and emails once an hour.
+
 
 -- Strider (real-time running coach)
 CREATE DATABASE strider_db
