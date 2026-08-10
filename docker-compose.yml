@@ -39,8 +39,8 @@ volumes:
     name: yggdrasil-urd-data
   ollama-models:
     name: yggdrasil-ollama-models
-  ntfy-data:
-    name: yggdrasil-ntfy-data
+  # ntfy-data removed 2026-08-10: ntfy now bind-mounts /mnt/user/appdata/ntfy
+  # (on-array) instead of the off-array named volume yggdrasil-ntfy-data.
 
   # File uploads: bind-mounted from /mnt/user/websites/files/{project}
   # No named volumes — files live on the Unraid share for easy backup
@@ -389,7 +389,11 @@ services:
         fi
         exec ntfy serve
     volumes:
-      - ntfy-data:/var/lib/ntfy
+      # On-array bind mount (was the off-array named volume yggdrasil-ntfy-data,
+      # which lived on docker.img — invisible to the AppData Backup plugin and lost
+      # on a docker.img rebuild). The auth db here is reproducible: the entrypoint
+      # reseeds the admin user from the secrets file on a fresh directory.
+      - /mnt/user/appdata/ntfy:/var/lib/ntfy
       - /mnt/user/appdata/claude/.env:/run/secrets/claude.env:ro
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/v1/health | grep -q '\"healthy\":true'"]
