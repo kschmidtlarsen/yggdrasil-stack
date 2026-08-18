@@ -192,6 +192,8 @@ services:
       - /mnt/user/websites/files/sorring3d:/volumes/sorring3d:ro
       - /mnt/user/websites/files/sorring-udlejning:/volumes/sorring-udlejning:ro
       - /mnt/user/websites/files/stuffbase:/volumes/stuffbase:ro
+      # Forge = fleet source of truth (git repos + registry image blobs, ~2.4G). Read-only.
+      - /mnt/user/appdata/forge:/volumes/forge:ro
       - /mnt/user/websites/yggdrasil-stack/docker-compose.yml:/config/docker-compose.yml:ro
       - /mnt/user/websites/yggdrasil-stack/init:/config/init:ro
     depends_on:
