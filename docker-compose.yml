@@ -110,7 +110,7 @@ services:
   # Port: 6100
   # ─────────────────────────────────────────────────────────────────────────────
   yggdrasil:
-    image: ghcr.io/kschmidtlarsen/yggdrasil:latest
+    image: 192.168.0.20:6125/ksl/yggdrasil:latest
     container_name: yggdrasil-dashboard
     restart: unless-stopped
     ports:
@@ -173,7 +173,7 @@ services:
   # Port: 6108
   # ─────────────────────────────────────────────────────────────────────────────
   eir:
-    image: ghcr.io/kschmidtlarsen/eir:latest
+    image: 192.168.0.20:6125/ksl/eir:latest
     container_name: yggdrasil-eir
     restart: unless-stopped
     ports:
