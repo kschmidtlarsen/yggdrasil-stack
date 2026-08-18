@@ -277,7 +277,7 @@ services:
   # design never redeploys the infra stack / Urd.
   # ─────────────────────────────────────────────────────────────────────────────
   design:
-    image: ghcr.io/kschmidtlarsen/design-system:latest
+    image: 192.168.0.20:6125/ksl/design-system:latest
     container_name: yggdrasil-design
     restart: unless-stopped
     ports:
