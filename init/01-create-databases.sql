@@ -11,14 +11,6 @@ CREATE DATABASE kanban_db
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
 
--- Calify
-CREATE DATABASE calify_db
-    WITH OWNER = urd
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'en_US.UTF-8'
-    LC_CTYPE = 'en_US.UTF-8'
-    TEMPLATE = template0;
-
 -- Grablist
 CREATE DATABASE grablist_db
     WITH OWNER = urd
