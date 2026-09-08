@@ -104,6 +104,7 @@ services:
       - bifrost
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+      - "net.unraid.docker.icon=http://192.168.0.20:6100/icons/container/yggdrasil-urd.png"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # YGGDRASIL - Infrastructure Operations Platform
@@ -141,6 +142,8 @@ services:
       - bifrost
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+      - "net.unraid.docker.icon=http://192.168.0.20:6100/icons/container/yggdrasil-dashboard.png"
+      - "net.unraid.docker.webui=http://[IP]:[PORT:3000]"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # BROWSER - Firefox + noVNC for OAuth flows
@@ -167,6 +170,8 @@ services:
       - bifrost
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
+      - "net.unraid.docker.icon=http://192.168.0.20:6100/icons/container/yggdrasil-browser.png"
+      - "net.unraid.docker.webui=http://[IP]:[PORT:5800]"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # EIR - Backup & Recovery Guardian (Goddess of Healing)
@@ -214,6 +219,8 @@ services:
       - bifrost
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+      - "net.unraid.docker.icon=http://192.168.0.20:6100/icons/container/yggdrasil-eir.png"
+      - "net.unraid.docker.webui=http://[IP]:[PORT:3000]"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # OLLAMA - Local AI Inference (Embeddings & Local Models)
@@ -270,6 +277,7 @@ services:
       - bifrost
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
+      - "net.unraid.docker.icon=http://192.168.0.20:6100/icons/container/yggdrasil-ollama.png"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # DESIGN SYSTEM — "Graphite Iris" shared CSS/tokens for every *.exe.pm app
@@ -299,6 +307,8 @@ services:
       - bifrost
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+      - "net.unraid.docker.icon=http://192.168.0.20:6100/icons/container/yggdrasil-design.png"
+      - "net.unraid.docker.webui=http://[IP]:[PORT:80]"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # NTFY - Self-hosted push, so notifications stop depending on Google
@@ -424,6 +434,8 @@ services:
   watchtower:
     image: nickfedor/watchtower:latest
     container_name: yggdrasil-watchtower
+    labels:
+      - "net.unraid.docker.icon=http://192.168.0.20:6100/icons/container/yggdrasil-watchtower.png"
     restart: unless-stopped
     environment:
       # Only update containers with the watchtower.enable=true label
