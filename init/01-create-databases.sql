@@ -200,3 +200,13 @@ CREATE DATABASE aula_db
     LC_COLLATE = 'en_US.UTF-8'
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
+
+-- AMS TV (PeerTube video platform for the AMS team)
+-- PeerTube also needs citext, pg_trgm and unaccent in this DB; it creates them
+-- at first boot when connecting as a superuser (urd).
+CREATE DATABASE amstv_db
+    WITH OWNER = urd
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.UTF-8'
+    LC_CTYPE = 'en_US.UTF-8'
+    TEMPLATE = template0;
